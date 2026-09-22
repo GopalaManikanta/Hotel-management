@@ -1,7 +1,14 @@
 @import "tailwindcss";
 
 @layer base {
-  body {
-    @apply bg-slate-50 text-slate-900 antialiased min-h-screen font-sans;
+  html, body, #root {
+    background-color: #ffffff !important;
+    color: #0f172a;
+    min-height: 100vh;
   }
+}
+
+/* Enforce 100% Pure White Background */
+.bg-pure-white {
+  background-color: #ffffff !important;
 }

@@ -1,136 +1,190 @@
+import Layout from '../components/Layout';
+import StatCard from '../components/StatCard';
+import RevenueSummary from '../components/RevenueSummary';
+import RecentBookingsTable from '../components/RecentBookingsTable';
+import QuickActions from '../components/QuickActions';
+import { useHotel } from '../context/HotelContext';
 import { useAuth } from '../context/AuthContext';
-import Navbar from '../components/Navbar';
-import { User, Shield, CheckCircle2, BedDouble, Utensils, CreditCard, Sparkles, Clock, HardDrive } from 'lucide-react';
+import { toast } from 'react-toastify';
+
+import {
+  Building2,
+  CheckCircle2,
+  BedDouble,
+  Users,
+  LogIn,
+  LogOut,
+  BookmarkCheck,
+  Sparkles,
+  RotateCcw,
+  Shield,
+  User,
+  PlusCircle
+} from 'lucide-react';
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
+  const { kpi, revenue, resetToCleanState } = useHotel();
+
+  const handleNewReservationClick = () => {
+    toast.info('New Reservation: Quick Action registered successfully.');
+  };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-      <Navbar />
-
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <Layout>
+      <div className="space-y-8 bg-white min-h-full">
         
-        {/* Welcome Hero Card */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/40 border border-slate-800 p-6 sm:p-10 mb-8 shadow-2xl">
-          <div className="absolute -top-24 -right-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-          
-          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold mb-3">
-                <Sparkles className="w-3.5 h-3.5" />
-                Grand Horizon Guest Experience
-              </div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-                Welcome back,{' '}
-                <span className="bg-gradient-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent">
-                  {currentUser?.name || 'Guest'}
-                </span>
-                ! 👋
-              </h1>
-              <p className="mt-2 text-slate-400 text-sm max-w-xl">
-                You are securely logged into your account. Explore hotel rooms, manage reservations, and experience seamless real-time authentication.
-              </p>
+        {/* Top Header & User Welcome Banner */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6 bg-white">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-indigo-700 text-xs font-bold mb-2 shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+              Pure White Hotel Management Suite
             </div>
+            <h1 className="text-3xl font-black tracking-tight text-slate-900">
+              Property Dashboard & Desk
+            </h1>
+            <p className="text-slate-500 text-sm mt-1">
+              Welcome back, <span className="text-indigo-600 font-bold">{currentUser?.name}</span>! System initialized at <strong className="text-emerald-600">0 Baseline</strong>.
+            </p>
+          </div>
 
-            <div className="flex flex-col gap-2 bg-slate-950/80 p-4 rounded-2xl border border-slate-800 text-xs min-w-[220px]">
-              <div className="flex items-center justify-between text-slate-400">
-                <span>Account Role:</span>
-                <span className="font-semibold text-amber-400 flex items-center gap-1">
-                  {currentUser?.role === 'Admin' ? <Shield className="w-3 h-3 text-indigo-400" /> : <User className="w-3 h-3" />}
-                  {currentUser?.role || 'Guest'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-slate-400">
-                <span>Email:</span>
-                <span className="font-medium text-slate-200 truncate max-w-[140px]">{currentUser?.email}</span>
-              </div>
-              <div className="flex items-center justify-between text-slate-400">
-                <span>Session Status:</span>
-                <span className="font-semibold text-emerald-400 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> Active
-                </span>
-              </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleNewReservationClick}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold px-4 py-2 rounded-2xl flex items-center gap-1.5 text-xs shadow-sm transition cursor-pointer"
+            >
+              <PlusCircle className="w-4 h-4 font-bold" />
+              New Reservation
+            </button>
+
+            <button
+              type="button"
+              onClick={resetToCleanState}
+              className="bg-white border border-slate-200 text-slate-700 hover:text-slate-900 px-3 py-2 rounded-2xl flex items-center gap-1.5 text-xs font-semibold transition cursor-pointer shadow-xs"
+              title="Reset state to 0 baseline"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+              Reset Baseline
+            </button>
+
+            <div className="bg-white border border-slate-200 px-3 py-2 rounded-2xl flex items-center gap-2 text-xs text-slate-700 shadow-xs">
+              {currentUser?.role === 'Admin' ? <Shield className="w-4 h-4 text-indigo-600" /> : <User className="w-4 h-4 text-indigo-600" />}
+              <span>Role: <strong className="text-slate-900">{currentUser?.role || 'Guest'}</strong></span>
             </div>
           </div>
         </div>
 
-        {/* Module 1 Completed Features Checklist */}
-        <div className="mb-8">
-          <h2 className="text-xl font-bold text-slate-100 mb-4 flex items-center gap-2">
-            <HardDrive className="w-5 h-5 text-amber-400" />
-            Module 1: Real-Time Authentication System Status
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
-                <CheckCircle2 className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-sm text-slate-200">User Login & Registration</h3>
-                <p className="text-xs text-slate-400 mt-1">Form validation, custom roles (Guest / Admin), and auto-login after register.</p>
-              </div>
-            </div>
+        {/* 1. Quick Actions */}
+        <section className="bg-white">
+          <QuickActions onNewReservation={handleNewReservationClick} />
+        </section>
 
-            <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
-                <CheckCircle2 className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-sm text-slate-200">Forgot Password Flow</h3>
-                <p className="text-xs text-slate-400 mt-1">Real-time credentials update stored persistently in LocalStorage.</p>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
-                <CheckCircle2 className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-sm text-slate-200">Protected & Public Routes</h3>
-                <p className="text-xs text-slate-400 mt-1">Route guards prevent unauthorized access to private views.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Upcoming Modules Preview */}
-        <div>
-          <h2 className="text-xl font-bold text-slate-100 mb-4 flex items-center gap-2">
-            <Clock className="w-5 h-5 text-amber-400" />
-            Upcoming Modules Preview
+        {/* 2. KPI Metrics Grid */}
+        <section className="space-y-4 bg-white">
+          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <Building2 className="w-5 h-5 text-indigo-600" />
+            Key Performance Indicators (KPIs) - 0 Baseline
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition">
-              <div className="p-3 rounded-xl bg-amber-500/10 text-amber-400 w-fit mb-4">
-                <BedDouble className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-slate-200 mb-2">Module 2: Room Booking System</h3>
-              <p className="text-xs text-slate-400">Room search, filters (Deluxe, Suite, Executive), date picker check-in/out, and live pricing calculator.</p>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Total Rooms */}
+            <StatCard
+              title="Total Rooms"
+              value={kpi.totalRooms}
+              icon={Building2}
+              color="indigo"
+              description="Inventory Capacity"
+              trend="up"
+              trendValue={`${kpi.totalRooms} Registered`}
+            />
 
-            <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition">
-              <div className="p-3 rounded-xl bg-rose-500/10 text-rose-400 w-fit mb-4">
-                <Utensils className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-slate-200 mb-2">Module 3: Dining & Food Menu</h3>
-              <p className="text-xs text-slate-400">In-room dining menu, cart management, meal ordering, and real-time total calculation.</p>
-            </div>
+            {/* Available Rooms */}
+            <StatCard
+              title="Available Rooms"
+              value={kpi.availableRooms}
+              icon={CheckCircle2}
+              color="emerald"
+              description="Ready for booking"
+              trend="up"
+              trendValue={`${kpi.availableRooms} Vacant`}
+            />
 
-            <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition">
-              <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-400 w-fit mb-4">
-                <CreditCard className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-slate-200 mb-2">Module 4: Checkout & Payment</h3>
-              <p className="text-xs text-slate-400">Mock payment gateway integration, invoice generation, and booking history tracking.</p>
-            </div>
+            {/* Occupied Rooms */}
+            <StatCard
+              title="Occupied Rooms"
+              value={kpi.occupiedRooms}
+              icon={BedDouble}
+              color="purple"
+              description="Guests currently in-house"
+              trend="up"
+              trendValue={`${kpi.occupiedRooms} Active`}
+            />
+
+            {/* Total Guests */}
+            <StatCard
+              title="Total Guests"
+              value={kpi.totalGuests}
+              icon={Users}
+              color="amber"
+              description="Active checked-in guests"
+              trend="up"
+              trendValue="Live Guest Count"
+            />
           </div>
-        </div>
 
-      </main>
-    </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Today's Check-Ins */}
+            <StatCard
+              title="Today's Check-Ins"
+              value={kpi.todayCheckIns}
+              icon={LogIn}
+              color="emerald"
+              description="Expected arriving guests"
+              trend="up"
+              trendValue={`${kpi.todayCheckIns} Arriving`}
+            />
+
+            {/* Today's Check-Outs */}
+            <StatCard
+              title="Today's Check-Outs"
+              value={kpi.todayCheckOuts}
+              icon={LogOut}
+              color="rose"
+              description="Departing guests today"
+              trend="down"
+              trendValue={`${kpi.todayCheckOuts} Scheduled`}
+            />
+
+            {/* Total Bookings */}
+            <StatCard
+              title="Total Bookings"
+              value={kpi.totalBookings}
+              icon={BookmarkCheck}
+              color="sky"
+              description="Cumulative reservation record"
+              trend="up"
+              trendValue={`${kpi.totalBookings} Total`}
+            />
+          </div>
+        </section>
+
+        {/* 3. Analytics Main Section: Revenue Summary & Recent Bookings */}
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 bg-white">
+          {/* Revenue Summary (5 cols) */}
+          <div className="lg:col-span-5 bg-white">
+            <RevenueSummary revenue={revenue} />
+          </div>
+
+          {/* Recent Bookings Table (7 cols) */}
+          <div className="lg:col-span-7 bg-white">
+            <RecentBookingsTable onNewReservation={handleNewReservationClick} />
+          </div>
+        </section>
+
+      </div>
+    </Layout>
   );
 };
 

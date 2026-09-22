@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import { Eye, EyeOff, Lock, Mail, User, Shield, Hotel, UserPlus, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, User, Shield, Hotel, UserPlus } from 'lucide-react';
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -46,30 +46,30 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 text-slate-100">
+    <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8 text-slate-900">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="inline-flex p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 mb-4">
+        <div className="inline-flex p-3 rounded-2xl bg-white border border-slate-200 text-indigo-600 mb-4 shadow-sm">
           <Hotel className="w-10 h-10" />
         </div>
-        <h2 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-amber-400 via-amber-200 to-white bg-clip-text text-transparent">
+        <h2 className="text-3xl font-black tracking-tight text-slate-900">
           Create Your Account
         </h2>
-        <p className="mt-2 text-sm text-slate-400">
-          Join Grand Horizon Hotel to book luxury rooms & manage reservations
+        <p className="mt-2 text-sm text-slate-500">
+          Join Grand Horizon Hotel to manage reservations
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-slate-900 py-8 px-4 shadow-2xl border border-slate-800 sm:rounded-2xl sm:px-10">
+        <div className="bg-white py-8 px-4 shadow-xl border border-slate-200 sm:rounded-3xl sm:px-10">
           <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
             
             {/* Full Name */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                 Full Name
               </label>
-              <div className="relative rounded-xl shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+              <div className="relative rounded-xl shadow-xs">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <User className="w-5 h-5" />
                 </div>
                 <input
@@ -79,23 +79,23 @@ const Register = () => {
                     required: 'Full name is required',
                     minLength: { value: 3, message: 'Name must be at least 3 characters' }
                   })}
-                  className={`block w-full pl-11 pr-4 py-2.5 bg-slate-950 border ${
-                    errors.name ? 'border-rose-500' : 'border-slate-800 focus:border-amber-500'
-                  } rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500 transition`}
+                  className={`block w-full pl-11 pr-4 py-2.5 bg-white border ${
+                    errors.name ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-500'
+                  } rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition`}
                 />
               </div>
               {errors.name && (
-                <p className="mt-1.5 text-xs text-rose-400 font-medium">{errors.name.message}</p>
+                <p className="mt-1.5 text-xs text-rose-600 font-semibold">{errors.name.message}</p>
               )}
             </div>
 
             {/* Email Address */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                 Email Address
               </label>
-              <div className="relative rounded-xl shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+              <div className="relative rounded-xl shadow-xs">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <Mail className="w-5 h-5" />
                 </div>
                 <input
@@ -108,43 +108,43 @@ const Register = () => {
                       message: 'Invalid email address'
                     }
                   })}
-                  className={`block w-full pl-11 pr-4 py-2.5 bg-slate-950 border ${
-                    errors.email ? 'border-rose-500' : 'border-slate-800 focus:border-amber-500'
-                  } rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500 transition`}
+                  className={`block w-full pl-11 pr-4 py-2.5 bg-white border ${
+                    errors.email ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-500'
+                  } rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition`}
                 />
               </div>
               {errors.email && (
-                <p className="mt-1.5 text-xs text-rose-400 font-medium">{errors.email.message}</p>
+                <p className="mt-1.5 text-xs text-rose-600 font-semibold">{errors.email.message}</p>
               )}
             </div>
 
             {/* Account Role Selection */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                 Account Role
               </label>
               <div className="grid grid-cols-2 gap-3">
-                <label className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700 transition">
+                <label className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-slate-200 cursor-pointer hover:border-slate-300 transition shadow-xs">
                   <input
                     type="radio"
                     value="Guest"
                     {...register('role')}
-                    className="text-amber-500 focus:ring-amber-500"
+                    className="text-indigo-600 focus:ring-indigo-500"
                   />
-                  <span className="text-xs font-medium text-slate-200 flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-amber-400" />
-                    Guest / Customer
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-indigo-600" />
+                    Guest Customer
                   </span>
                 </label>
-                <label className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer hover:border-slate-700 transition">
+                <label className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-slate-200 cursor-pointer hover:border-slate-300 transition shadow-xs">
                   <input
                     type="radio"
                     value="Admin"
                     {...register('role')}
-                    className="text-amber-500 focus:ring-amber-500"
+                    className="text-indigo-600 focus:ring-indigo-500"
                   />
-                  <span className="text-xs font-medium text-slate-200 flex items-center gap-1.5">
-                    <Shield className="w-3.5 h-3.5 text-indigo-400" />
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <Shield className="w-3.5 h-3.5 text-indigo-600" />
                     Hotel Manager
                   </span>
                 </label>
@@ -153,11 +153,11 @@ const Register = () => {
 
             {/* Password */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                 Password
               </label>
-              <div className="relative rounded-xl shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+              <div className="relative rounded-xl shadow-xs">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <Lock className="w-5 h-5" />
                 </div>
                 <input
@@ -168,36 +168,32 @@ const Register = () => {
                     minLength: {
                       value: 6,
                       message: 'Password must be at least 6 characters'
-                    },
-                    pattern: {
-                      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-                      message: 'Password must contain uppercase, lowercase and a number'
                     }
                   })}
-                  className={`block w-full pl-11 pr-11 py-2.5 bg-slate-950 border ${
-                    errors.password ? 'border-rose-500' : 'border-slate-800 focus:border-amber-500'
-                  } rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500 transition`}
+                  className={`block w-full pl-11 pr-11 py-2.5 bg-white border ${
+                    errors.password ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-500'
+                  } rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 cursor-pointer"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1.5 text-xs text-rose-400 font-medium">{errors.password.message}</p>
+                <p className="mt-1.5 text-xs text-rose-600 font-semibold">{errors.password.message}</p>
               )}
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                 Confirm Password
               </label>
-              <div className="relative rounded-xl shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+              <div className="relative rounded-xl shadow-xs">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <Lock className="w-5 h-5" />
                 </div>
                 <input
@@ -207,20 +203,20 @@ const Register = () => {
                     required: 'Please confirm your password',
                     validate: (val) => val === passwordValue || 'Passwords do not match'
                   })}
-                  className={`block w-full pl-11 pr-11 py-2.5 bg-slate-950 border ${
-                    errors.confirmPassword ? 'border-rose-500' : 'border-slate-800 focus:border-amber-500'
-                  } rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500 transition`}
+                  className={`block w-full pl-11 pr-11 py-2.5 bg-white border ${
+                    errors.confirmPassword ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-500'
+                  } rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 cursor-pointer"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p className="mt-1.5 text-xs text-rose-400 font-medium">{errors.confirmPassword.message}</p>
+                <p className="mt-1.5 text-xs text-rose-600 font-semibold">{errors.confirmPassword.message}</p>
               )}
             </div>
 
@@ -229,7 +225,7 @@ const Register = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 focus:ring-offset-slate-900 transition-all cursor-pointer disabled:opacity-50"
+                className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl shadow-md text-sm font-black text-white bg-indigo-600 hover:bg-indigo-700 transition-all cursor-pointer disabled:opacity-50"
               >
                 <UserPlus className="w-4 h-4" />
                 Complete Registration
@@ -238,10 +234,10 @@ const Register = () => {
           </form>
 
           {/* Login Link */}
-          <div className="mt-6 text-center border-t border-slate-800 pt-5">
-            <p className="text-xs text-slate-400">
+          <div className="mt-6 text-center border-t border-slate-100 pt-5">
+            <p className="text-xs text-slate-500">
               Already have an account?{' '}
-              <Link to="/login" className="font-semibold text-amber-400 hover:text-amber-300 transition-colors">
+              <Link to="/login" className="font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
                 Sign In
               </Link>
             </p>
