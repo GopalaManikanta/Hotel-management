@@ -10,6 +10,12 @@ import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import RoomList from './pages/RoomList';
 import RoomDetails from './pages/RoomDetails';
+import BookingsList from './pages/BookingsList';
+import GuestList from './pages/GuestList';
+import GuestProfile from './pages/GuestProfile';
+import Analytics from './pages/Analytics';
+import DiningServices from './pages/DiningServices';
+import SystemSettings from './pages/SystemSettings';
 
 import { ToastContainer } from 'react-toastify';
 
@@ -55,7 +61,7 @@ function App() {
               }
             />
 
-            {/* Module 2: Room Management Routes */}
+            {/* Room Management Routes */}
             <Route
               path="/rooms"
               element={
@@ -69,6 +75,64 @@ function App() {
               element={
                 <ProtectedRoute>
                   <RoomDetails />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Bookings & Reservations Routes */}
+            <Route
+              path="/bookings"
+              element={
+                <ProtectedRoute>
+                  <BookingsList />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Guest Management Routes */}
+            <Route
+              path="/guests"
+              element={
+                <ProtectedRoute>
+                  <GuestList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/guests/:id"
+              element={
+                <ProtectedRoute>
+                  <GuestProfile />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Analytics & Reports Routes */}
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedRoute>
+                  <Analytics />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Dining & Room Services Routes */}
+            <Route
+              path="/dining"
+              element={
+                <ProtectedRoute>
+                  <DiningServices />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* System Settings Routes */}
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <SystemSettings />
                 </ProtectedRoute>
               }
             />

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { roomApi } from '../services/roomApi';
+import { guestApi } from '../services/guestApi';
 import { toast } from 'react-toastify';
 
 const HotelContext = createContext();
@@ -8,6 +9,7 @@ export const useHotel = () => useContext(HotelContext);
 
 export const HotelProvider = ({ children }) => {
   const [rooms, setRooms] = useState([]);
+  const [guests, setGuests] = useState([]);
   const [bookings, setBookings] = useState(() => {
     try {
       const saved = localStorage.getItem('hotel_app_bookings_v4');
@@ -20,23 +22,27 @@ export const HotelProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch Rooms from API on Mount
-  const fetchRooms = async () => {
+  // Fetch Rooms & Guests on Mount
+  const fetchAllData = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await roomApi.getRooms();
-      setRooms(res.data);
+      const [roomsRes, guestsRes] = await Promise.all([
+        roomApi.getRooms(),
+        guestApi.getGuests()
+      ]);
+      setRooms(roomsRes.data);
+      setGuests(guestsRes.data);
     } catch (err) {
-      setError('Failed to fetch rooms from API server. Please try again.');
-      toast.error('Failed to load room inventory.');
+      setError('Failed to fetch data from API server. Please try again.');
+      toast.error('Failed to load hotel operations data.');
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchRooms();
+    fetchAllData();
   }, []);
 
   // Persist bookings to localStorage
@@ -51,10 +57,7 @@ export const HotelProvider = ({ children }) => {
   const maintenanceRooms = rooms.filter((r) => r.status === 'Maintenance').length;
   
   const totalBookings = bookings.length;
-  const uniqueGuestIdentifiers = new Set(
-    bookings.map((b) => (b.guestEmail || b.guestName || '').toLowerCase().trim()).filter(Boolean)
-  );
-  const totalGuests = uniqueGuestIdentifiers.size || (occupiedRooms > 0 ? occupiedRooms * 2 : 0);
+  const totalGuests = guests.length || bookings.length;
   
   const todayDateStr = new Date().toISOString().split('T')[0];
 
@@ -139,6 +142,44 @@ export const HotelProvider = ({ children }) => {
     }
   };
 
+  // GUEST ACTIONS: Add, Edit, Delete Guest
+  const addGuest = async (guestData) => {
+    try {
+      const res = await guestApi.createGuest(guestData);
+      setGuests((prev) => [res.data, ...prev]);
+      toast.success(`Guest ${res.data.fullName} registered successfully!`);
+      return true;
+    } catch {
+      toast.error('Failed to register guest.');
+      return false;
+    }
+  };
+
+  const editGuest = async (guestId, updatedData) => {
+    try {
+      const res = await guestApi.updateGuest(guestId, updatedData);
+      setGuests((prev) => prev.map((g) => (g.id === guestId ? res.data : g)));
+      toast.success(`Guest profile for ${res.data.fullName} updated!`);
+      return true;
+    } catch {
+      toast.error('Failed to update guest profile.');
+      return false;
+    }
+  };
+
+  const deleteGuest = async (guestId) => {
+    try {
+      const guest = guests.find((g) => g.id === guestId);
+      await guestApi.deleteGuest(guestId);
+      setGuests((prev) => prev.filter((g) => g.id !== guestId));
+      toast.info(`Guest ${guest?.fullName || ''} record removed.`);
+      return true;
+    } catch {
+      toast.error('Failed to delete guest.');
+      return false;
+    }
+  };
+
   // Action: Add Booking
   const addBooking = (newBookingData) => {
     const rNum = newBookingData.roomNumber?.toString().trim() || '101';
@@ -211,8 +252,10 @@ export const HotelProvider = ({ children }) => {
   // Reset State to Clean Baseline
   const resetToCleanState = () => {
     setRooms([]);
+    setGuests([]);
     setBookings([]);
     localStorage.removeItem('hotel_app_rooms_v4');
+    localStorage.removeItem('hotel_app_guests_v1');
     localStorage.removeItem('hotel_app_bookings_v4');
     toast.info('Hotel Operations reset to 0 baseline.');
   };
@@ -221,14 +264,18 @@ export const HotelProvider = ({ children }) => {
     <HotelContext.Provider
       value={{
         rooms,
+        guests,
         bookings,
         isLoading,
         error,
-        fetchRooms,
+        fetchRooms: fetchAllData,
         addRoom,
         editRoom,
         deleteRoom,
         toggleRoomStatus,
+        addGuest,
+        editGuest,
+        deleteGuest,
         kpi: {
           totalRooms,
           availableRooms,
