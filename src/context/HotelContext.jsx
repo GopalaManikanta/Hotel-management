@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { roomApi } from '../services/roomApi';
 import { toast } from 'react-toastify';
 
 const HotelContext = createContext();
@@ -6,42 +7,54 @@ const HotelContext = createContext();
 export const useHotel = () => useContext(HotelContext);
 
 export const HotelProvider = ({ children }) => {
-  // Start cleanly with 0 rooms and 0 bookings
-  const [rooms, setRooms] = useState(() => {
-    try {
-      const saved = localStorage.getItem('hotel_app_rooms_v3');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-
+  const [rooms, setRooms] = useState([]);
   const [bookings, setBookings] = useState(() => {
     try {
-      const saved = localStorage.getItem('hotel_app_bookings_v3');
+      const saved = localStorage.getItem('hotel_app_bookings_v4');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
     }
   });
 
-  // Persist to localStorage
-  useEffect(() => {
-    localStorage.setItem('hotel_app_rooms_v3', JSON.stringify(rooms));
-  }, [rooms]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch Rooms from API on Mount
+  const fetchRooms = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await roomApi.getRooms();
+      setRooms(res.data);
+    } catch (err) {
+      setError('Failed to fetch rooms from API server. Please try again.');
+      toast.error('Failed to load room inventory.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    localStorage.setItem('hotel_app_bookings_v3', JSON.stringify(bookings));
+    fetchRooms();
+  }, []);
+
+  // Persist bookings to localStorage
+  useEffect(() => {
+    localStorage.setItem('hotel_app_bookings_v4', JSON.stringify(bookings));
   }, [bookings]);
 
-  // Derived Real-Time KPI Metrics (Start cleanly at 0)
+  // Derived Real-Time KPI Metrics
   const totalRooms = rooms.length;
   const occupiedRooms = rooms.filter((r) => r.status === 'Occupied').length;
   const availableRooms = rooms.filter((r) => r.status === 'Available').length;
   const maintenanceRooms = rooms.filter((r) => r.status === 'Maintenance').length;
   
   const totalBookings = bookings.length;
-  const totalGuests = occupiedRooms > 0 ? occupiedRooms * 2 : 0;
+  const uniqueGuestIdentifiers = new Set(
+    bookings.map((b) => (b.guestEmail || b.guestName || '').toLowerCase().trim()).filter(Boolean)
+  );
+  const totalGuests = uniqueGuestIdentifiers.size || (occupiedRooms > 0 ? occupiedRooms * 2 : 0);
   
   const todayDateStr = new Date().toISOString().split('T')[0];
 
@@ -74,7 +87,59 @@ export const HotelProvider = ({ children }) => {
     };
   });
 
-  // Action: Add New Booking & Dynamic Room Registration
+  // Action: Add New Room via API
+  const addRoom = async (roomData) => {
+    try {
+      const res = await roomApi.createRoom(roomData);
+      setRooms((prev) => [res.data, ...prev]);
+      toast.success(`Room ${res.data.number} created successfully!`);
+      return true;
+    } catch {
+      toast.error('Failed to create room.');
+      return false;
+    }
+  };
+
+  // Action: Edit Room via API
+  const editRoom = async (roomId, updatedData) => {
+    try {
+      const res = await roomApi.updateRoom(roomId, updatedData);
+      setRooms((prev) => prev.map((r) => (r.id === roomId ? res.data : r)));
+      toast.success(`Room ${res.data.number} updated successfully!`);
+      return true;
+    } catch {
+      toast.error('Failed to update room.');
+      return false;
+    }
+  };
+
+  // Action: Delete Room via API
+  const deleteRoom = async (roomId) => {
+    try {
+      await roomApi.deleteRoom(roomId);
+      setRooms((prev) => prev.filter((r) => r.id !== roomId));
+      toast.info(`Room removed from inventory.`);
+      return true;
+    } catch {
+      toast.error('Failed to delete room.');
+      return false;
+    }
+  };
+
+  // Action: Toggle Room Status
+  const toggleRoomStatus = async (roomId, newStatus) => {
+    try {
+      const room = rooms.find((r) => r.id === roomId);
+      if (!room) return;
+      const res = await roomApi.updateRoom(roomId, { status: newStatus });
+      setRooms((prev) => prev.map((r) => (r.id === roomId ? res.data : r)));
+      toast.info(`Room ${room.number} status changed to ${newStatus}.`);
+    } catch {
+      toast.error('Failed to change room status.');
+    }
+  };
+
+  // Action: Add Booking
   const addBooking = (newBookingData) => {
     const rNum = newBookingData.roomNumber?.toString().trim() || '101';
     const rType = newBookingData.roomType || 'Standard Room';
@@ -102,24 +167,10 @@ export const HotelProvider = ({ children }) => {
 
     setBookings((prev) => [newBooking, ...prev]);
 
-    // Add or update room in inventory as Occupied
-    setRooms((prev) => {
-      const exists = prev.find((r) => r.number === rNum);
-      if (exists) {
-        return prev.map((r) => (r.number === rNum ? { ...r, status: 'Occupied' } : r));
-      } else {
-        return [
-          ...prev,
-          {
-            id: `R-${rNum}`,
-            number: rNum,
-            type: rType,
-            price: rPrice,
-            status: 'Occupied'
-          }
-        ];
-      }
-    });
+    // Update Room status to Occupied
+    setRooms((prev) =>
+      prev.map((r) => (r.number === rNum ? { ...r, status: 'Occupied' } : r))
+    );
 
     toast.success(`Booking ${newBooking.id} created for ${newBooking.guestName} in Room ${rNum}!`);
     return true;
@@ -157,12 +208,12 @@ export const HotelProvider = ({ children }) => {
     toast.info(`Guest ${booking.guestName} checked out. Room ${booking.roomNumber} is now Available.`);
   };
 
-  // Reset State to 0 Baseline
+  // Reset State to Clean Baseline
   const resetToCleanState = () => {
     setRooms([]);
     setBookings([]);
-    localStorage.removeItem('hotel_app_rooms_v3');
-    localStorage.removeItem('hotel_app_bookings_v3');
+    localStorage.removeItem('hotel_app_rooms_v4');
+    localStorage.removeItem('hotel_app_bookings_v4');
     toast.info('Hotel Operations reset to 0 baseline.');
   };
 
@@ -171,6 +222,13 @@ export const HotelProvider = ({ children }) => {
       value={{
         rooms,
         bookings,
+        isLoading,
+        error,
+        fetchRooms,
+        addRoom,
+        editRoom,
+        deleteRoom,
+        toggleRoomStatus,
         kpi: {
           totalRooms,
           availableRooms,
@@ -179,7 +237,8 @@ export const HotelProvider = ({ children }) => {
           totalGuests,
           todayCheckIns,
           todayCheckOuts,
-          totalBookings
+          totalBookings,
+          occupancyRate
         },
         revenue: {
           totalRevenue,

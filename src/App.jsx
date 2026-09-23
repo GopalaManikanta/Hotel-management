@@ -8,6 +8,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
+import RoomList from './pages/RoomList';
+import RoomDetails from './pages/RoomDetails';
 
 import { ToastContainer } from 'react-toastify';
 
@@ -53,11 +55,29 @@ function App() {
               }
             />
 
+            {/* Module 2: Room Management Routes */}
+            <Route
+              path="/rooms"
+              element={
+                <ProtectedRoute>
+                  <RoomList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/rooms/:id"
+              element={
+                <ProtectedRoute>
+                  <RoomDetails />
+                </ProtectedRoute>
+              }
+            />
+
             {/* Default Redirect */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
 
-          {/* Global Toast Notifications - Light Theme */}
+          {/* Global Toast Notifications */}
           <ToastContainer
             position="top-right"
             autoClose={3000}

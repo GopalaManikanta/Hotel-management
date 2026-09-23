@@ -3,7 +3,22 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import { Eye, EyeOff, Lock, Mail, Hotel, ArrowRight, KeyRound } from 'lucide-react';
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  Hotel,
+  ArrowRight,
+  KeyRound,
+  ShieldCheck,
+  Sparkles,
+  Building2,
+  CheckCircle2,
+  Star,
+  Zap,
+  Check
+} from 'lucide-react';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -38,47 +53,162 @@ const Login = () => {
   const setDemoCredentials = (email, password) => {
     setValue('email', email, { shouldValidate: true });
     setValue('password', password, { shouldValidate: true });
+    toast.info(`Filled credentials for ${email.includes('admin') ? 'Admin' : 'Guest'}`);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 text-slate-900">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="inline-flex p-3 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 mb-4 shadow-sm">
-          <Hotel className="w-10 h-10" />
+    <div className="min-h-screen bg-white grid grid-cols-1 lg:grid-cols-12 select-none">
+      
+      {/* LEFT COLUMN: Real-Time Luxury Hotel Image Showcase (Desktop) */}
+      <div className="hidden lg:flex lg:col-span-6 xl:col-span-7 relative flex-col justify-between p-12 overflow-hidden bg-slate-900 text-white">
+        {/* Background Image with Dark Overlay */}
+        <img
+          src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80"
+          alt="Grand Horizon Resort Exterior"
+          className="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-transform duration-10000 ease-out"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-slate-950/40" />
+
+        {/* Top Header: Brand Logo */}
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white p-2.5 rounded-2xl shadow-xl border border-white/20">
+              <Hotel className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-xl font-black tracking-tight text-white">Grand Horizon</h1>
+              <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest -mt-0.5">
+                Luxury Hotel & Resort Suite
+              </p>
+            </div>
+          </div>
         </div>
-        <h2 className="text-3xl font-black tracking-tight text-slate-900">
-          Welcome Back
-        </h2>
-        <p className="mt-2 text-sm text-slate-500">
-          Sign in to access your Grand Horizon Hotel Suite
-        </p>
+
+        {/* Middle Real-Time Feature Overlays */}
+        <div className="relative z-10 space-y-6 max-w-xl my-auto py-12">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/30 backdrop-blur-md border border-indigo-400/30 text-indigo-200 text-xs font-bold shadow-lg">
+            <Sparkles className="w-4 h-4 text-indigo-300" />
+            Enterprise Desk Operations Platform
+          </div>
+
+          <h2 className="text-4xl xl:text-5xl font-black tracking-tight leading-tight text-white drop-shadow-md">
+            Seamless Guest Operations & Real-Time Room Suite.
+          </h2>
+
+          <p className="text-slate-300 text-sm xl:text-base leading-relaxed font-medium">
+            Manage reservations, room availability, guest check-ins, and financial revenue tracking with zero delay in real-time.
+          </p>
+
+          {/* Floating Glassmorphism Cards */}
+          <div className="grid grid-cols-2 gap-4 pt-2">
+            <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-xl">
+              <div className="flex items-center gap-3 mb-1">
+                <Building2 className="w-5 h-5 text-amber-400" />
+                <span className="text-xs font-bold text-slate-200">Inventory Sync</span>
+              </div>
+              <p className="text-2xl font-black text-white">20 Rooms</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">Live real-time status updates</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-xl">
+              <div className="flex items-center gap-3 mb-1">
+                <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+                <span className="text-xs font-bold text-slate-200">Rating & Safety</span>
+              </div>
+              <p className="text-2xl font-black text-white">5-Star Standard</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">256-Bit SSL Encrypted</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Feature Badges & Testimonial */}
+        <div className="relative z-10 border-t border-white/15 pt-6 flex items-center justify-between text-xs text-slate-300 font-medium">
+          <div className="flex items-center gap-6">
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              Instant Check-In
+            </span>
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-indigo-400" />
+              Role-Based Access
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Zap className="w-4 h-4 text-amber-400" />
+              0 Baseline Ready
+            </span>
+          </div>
+
+          <div className="text-[11px] text-slate-400">
+            © 2026 Grand Horizon Suite
+          </div>
+        </div>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-xl border border-slate-200 sm:rounded-3xl sm:px-10">
-          
-          {/* Quick Demo Fill Buttons */}
-          <div className="mb-6 p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
-            <span className="text-slate-500 font-semibold block mb-2">⚡ Quick Fill Demo Accounts:</span>
-            <div className="flex gap-2">
+      {/* RIGHT COLUMN: Pure White Authentication Form Container */}
+      <div className="col-span-1 lg:col-span-6 xl:col-span-5 flex flex-col justify-between p-6 sm:p-12 lg:p-16 bg-white min-h-screen">
+        
+        {/* Mobile Header Logo */}
+        <div className="lg:hidden flex items-center gap-3 mb-8">
+          <div className="bg-indigo-600 text-white p-2.5 rounded-2xl shadow-md">
+            <Hotel className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-lg font-black tracking-tight text-slate-900">Grand Horizon</h1>
+            <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-widest -mt-0.5">
+              Hotel Suite
+            </p>
+          </div>
+        </div>
+
+        <div className="my-auto max-w-md w-full mx-auto space-y-8">
+          {/* Header Title */}
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-indigo-700 text-xs font-bold mb-3">
+              <Hotel className="w-3.5 h-3.5 text-indigo-600" />
+              Portal Authentication
+            </div>
+            <h2 className="text-3xl font-black tracking-tight text-slate-900">
+              Welcome Back
+            </h2>
+            <p className="text-sm text-slate-500 mt-1.5">
+              Sign in with your credentials to access the Grand Horizon Desk.
+            </p>
+          </div>
+
+          {/* Quick Demo Credentials Panel */}
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-700 font-bold flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                Quick Demo Accounts:
+              </span>
+              <span className="text-[10px] text-slate-400 font-semibold">Click to auto-fill</span>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2.5">
               <button
                 type="button"
                 onClick={() => setDemoCredentials('guest@hotel.com', 'Password@123')}
-                className="flex-1 py-1 px-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-[11px] font-bold transition cursor-pointer"
+                className="py-2 px-3 rounded-xl bg-white hover:bg-indigo-50 text-indigo-700 border border-slate-200 hover:border-indigo-300 text-xs font-bold transition flex items-center justify-between group shadow-xs cursor-pointer"
               >
-                Guest User
+                <span>Guest User</span>
+                <Check className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 text-indigo-600 transition-opacity" />
               </button>
+
               <button
                 type="button"
                 onClick={() => setDemoCredentials('admin@hotel.com', 'Password@123')}
-                className="flex-1 py-1 px-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-[11px] font-bold transition cursor-pointer"
+                className="py-2 px-3 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 border border-slate-200 hover:border-emerald-300 text-xs font-bold transition flex items-center justify-between group shadow-xs cursor-pointer"
               >
-                Admin User
+                <span>Admin User</span>
+                <Check className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 text-emerald-600 transition-opacity" />
               </button>
             </div>
           </div>
 
+          {/* Login Form */}
           <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
+            
             {/* Email Field */}
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
@@ -98,8 +228,8 @@ const Login = () => {
                       message: 'Invalid email address'
                     }
                   })}
-                  className={`block w-full pl-11 pr-4 py-2.5 bg-slate-50 border ${
-                    errors.email ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-500 focus:bg-white'
+                  className={`block w-full pl-11 pr-4 py-3 bg-white border ${
+                    errors.email ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100'
                   } rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition`}
                 />
               </div>
@@ -118,7 +248,7 @@ const Login = () => {
                   to="/forgot-password"
                   className="text-xs font-bold text-indigo-600 hover:text-indigo-700 transition-colors flex items-center gap-1"
                 >
-                  <KeyRound className="w-3 h-3" />
+                  <KeyRound className="w-3.5 h-3.5" />
                   Forgot password?
                 </Link>
               </div>
@@ -136,8 +266,8 @@ const Login = () => {
                       message: 'Password must be at least 6 characters'
                     }
                   })}
-                  className={`block w-full pl-11 pr-11 py-2.5 bg-slate-50 border ${
-                    errors.password ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-500 focus:bg-white'
+                  className={`block w-full pl-11 pr-11 py-3 bg-white border ${
+                    errors.password ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100'
                   } rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition`}
                 />
                 <button
@@ -154,21 +284,21 @@ const Login = () => {
             </div>
 
             {/* Submit Button */}
-            <div>
+            <div className="pt-2">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl shadow-md text-sm font-black text-white bg-indigo-600 hover:bg-indigo-700 transition-all cursor-pointer disabled:opacity-50"
+                className="w-full flex justify-center items-center gap-2 py-3.5 px-4 rounded-xl shadow-lg text-sm font-black text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 transition-all cursor-pointer disabled:opacity-50"
               >
-                Sign In
+                Sign In to Dashboard
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </form>
 
-          {/* Register Link */}
-          <div className="mt-6 text-center border-t border-slate-100 pt-5">
-            <p className="text-xs text-slate-500">
+          {/* Register Callout */}
+          <div className="text-center border-t border-slate-100 pt-6">
+            <p className="text-xs text-slate-500 font-medium">
               Don't have an account yet?{' '}
               <Link to="/register" className="font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
                 Create Account
@@ -176,7 +306,14 @@ const Login = () => {
             </p>
           </div>
         </div>
+
+        {/* Footer info */}
+        <div className="text-center text-[11px] text-slate-400 font-medium mt-8">
+          Grand Horizon Hotel Suite v4.2 • Secured Access
+        </div>
+
       </div>
+
     </div>
   );
 };
