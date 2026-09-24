@@ -97,10 +97,10 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
             {!isCollapsed && (
               <div>
                 <h1 className="font-extrabold text-base tracking-tight text-slate-900">
-                  Grand Horizon
+                  Celestia Grand
                 </h1>
                 <p className="text-[9px] text-indigo-600 font-bold tracking-widest uppercase -mt-0.5">
-                  Hotel Suite
+                  Luxury Resort & Spa
                 </p>
               </div>
             )}

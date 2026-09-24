@@ -1,11 +1,12 @@
+import { useState } from 'react';
 import Layout from '../components/Layout';
 import StatCard from '../components/StatCard';
 import RevenueSummary from '../components/RevenueSummary';
 import RecentBookingsTable from '../components/RecentBookingsTable';
 import QuickActions from '../components/QuickActions';
+import BookingFormModal from '../components/BookingFormModal';
 import { useHotel } from '../context/HotelContext';
 import { useAuth } from '../context/AuthContext';
-import { toast } from 'react-toastify';
 
 import {
   Building2,
@@ -25,9 +26,10 @@ import {
 const Dashboard = () => {
   const { currentUser } = useAuth();
   const { kpi, revenue, resetToCleanState } = useHotel();
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const handleNewReservationClick = () => {
-    toast.info('New Reservation: Quick Action registered successfully.');
+    setIsBookingModalOpen(true);
   };
 
   return (
@@ -39,7 +41,7 @@ const Dashboard = () => {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-indigo-700 text-xs font-bold mb-2 shadow-xs">
               <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-              Pure White Hotel Management Suite
+              Celestia Grand Luxury Suite
             </div>
             <h1 className="text-3xl font-black tracking-tight text-slate-900">
               Property Dashboard & Desk
@@ -184,6 +186,12 @@ const Dashboard = () => {
         </section>
 
       </div>
+
+      {/* Booking Form Modal */}
+      <BookingFormModal
+        isOpen={isBookingModalOpen}
+        onClose={() => setIsBookingModalOpen(false)}
+      />
     </Layout>
   );
 };

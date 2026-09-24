@@ -1,189 +1,84 @@
 import axios from 'axios';
 
-// Enterprise Dataset for 10 Real-Time Hotel Guests with High-Res Avatars
-const defaultGuests = [
-  {
-    id: 'GST-1001',
-    fullName: 'Ananya Sharma',
-    email: 'ananya.sharma@example.com',
-    mobileNumber: '+91 98765 43210',
-    address: 'Suite 402, Jubilee Hills, Hyderabad, Telangana',
-    idProofType: 'Aadhaar Card',
-    idProofNumber: '8921-4412-9012',
-    nationality: 'Indian',
-    status: 'Active In-House',
-    roomNumber: '103',
-    visitsCount: 4,
-    totalSpend: 42500,
-    emergencyContact: '+91 98765 00000 (Ramesh Sharma - Spouse)',
-    notes: 'VIP Guest. Prefers high-floor room with ocean view and extra pillows.',
-    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'
-  },
-  {
-    id: 'GST-1002',
-    fullName: 'Vikram Reddy',
-    email: 'vikram.r@example.com',
-    mobileNumber: '+91 91234 56789',
-    address: 'Plot 18, Banjara Hills, Hyderabad, Telangana',
-    idProofType: 'Aadhaar Card',
-    idProofNumber: '4512-8890-1234',
-    nationality: 'Indian',
-    status: 'Active In-House',
-    roomNumber: '202',
-    visitsCount: 6,
-    totalSpend: 78000,
-    emergencyContact: '+91 91234 00000 (Suresh Reddy - Brother)',
-    notes: 'Frequent business traveler. Prefers executive lounge access.',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80'
-  },
-  {
-    id: 'GST-1003',
-    fullName: 'David Miller',
-    email: 'david.m@globalcorp.com',
-    mobileNumber: '+1 (555) 234-5678',
-    address: '742 Evergreen Terrace, New York, NY 10001, USA',
-    idProofType: 'Passport',
-    idProofNumber: 'PASSPORT-Z7819201',
-    nationality: 'American',
-    status: 'VIP Guest',
-    roomNumber: '401',
-    visitsCount: 8,
-    totalSpend: 185000,
-    emergencyContact: '+1 (555) 999-8888 (Sarah Miller - Wife)',
-    notes: 'Corporate Account VP. Requires late checkout and express airport transfer.',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80'
-  },
-  {
-    id: 'GST-1004',
-    fullName: 'Pooja Verma',
-    email: 'pooja.verma@techsolutions.in',
-    mobileNumber: '+91 98111 22334',
-    address: 'Sector 62, Noida, Uttar Pradesh',
-    idProofType: 'Voter ID',
-    idProofNumber: 'VOTER-UP982104',
-    nationality: 'Indian',
-    status: 'Checked-Out',
-    roomNumber: '105',
-    visitsCount: 2,
-    totalSpend: 19500,
-    emergencyContact: '+91 98111 00000 (Amit Verma - Father)',
-    notes: 'Standard room traveler. Attended Tech Summit 2026.',
-    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80'
-  },
-  {
-    id: 'GST-1005',
-    fullName: 'Emma Watson',
-    email: 'emma.w@londondesign.co.uk',
-    mobileNumber: '+44 7911 123456',
-    address: '221B Baker Street, London, NW1 6XE, UK',
-    idProofType: 'Passport',
-    idProofNumber: 'PASSPORT-UK492100',
-    nationality: 'British',
-    status: 'VIP Guest',
-    roomNumber: '304',
-    visitsCount: 5,
-    totalSpend: 120000,
-    emergencyContact: '+44 7911 000000 (James Watson - Parent)',
-    notes: 'Loves spa amenities and organic green tea in mini bar.',
-    image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80'
-  },
-  {
-    id: 'GST-1006',
-    fullName: 'Rahul Dravid',
-    email: 'rahul.d@cricketindia.org',
-    mobileNumber: '+91 99000 11223',
-    address: 'Indiranagar 10th Main, Bengaluru, Karnataka',
-    idProofType: 'Aadhaar Card',
-    idProofNumber: '7721-9988-3344',
-    nationality: 'Indian',
-    status: 'Active In-House',
-    roomNumber: '405',
-    visitsCount: 12,
-    totalSpend: 310000,
-    emergencyContact: '+91 99000 00000 (Vijeta Dravid - Wife)',
-    notes: 'Executive Suite regular. Demands maximum privacy and quiet wing.',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80'
-  },
-  {
-    id: 'GST-1007',
-    fullName: 'Klaus Schmidt',
-    email: 'klaus.schmidt@berlingroup.de',
-    mobileNumber: '+49 30 1234567',
-    address: 'Friedrichstraße 12, 10117 Berlin, Germany',
-    idProofType: 'Passport',
-    idProofNumber: 'PASSPORT-DE891023',
-    nationality: 'German',
-    status: 'Checked-Out',
-    roomNumber: '204',
-    visitsCount: 3,
-    totalSpend: 54000,
-    emergencyContact: '+49 30 999999 (Greta Schmidt - Sister)',
-    notes: 'Engineering consultant. Requested ergonomic desk and fiber internet.',
-    image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80'
-  },
-  {
-    id: 'GST-1008',
-    fullName: 'Sneha Rao',
-    email: 'sneha.rao@fintech.in',
-    mobileNumber: '+91 97444 55667',
-    address: 'Marine Drive, Mumbai, Maharashtra',
-    idProofType: 'Driving License',
-    idProofNumber: 'DL-MH0120190012345',
-    nationality: 'Indian',
-    status: 'Active In-House',
-    roomNumber: '101',
-    visitsCount: 1,
-    totalSpend: 14500,
-    emergencyContact: '+91 97444 00000 (Karan Rao - Brother)',
-    notes: 'First time guest. Booked standard room with breakfast.',
-    image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80'
-  }
-];
-
-// Helper to fetch guests from localStorage (key v2)
-const getStoredGuests = () => {
+// Helper to fetch custom added guests from localStorage
+const getCustomGuests = () => {
   try {
-    const data = localStorage.getItem('hotel_app_guests_v2');
-    return data ? JSON.parse(data) : defaultGuests;
+    const data = localStorage.getItem('hotel_app_custom_guests');
+    return data ? JSON.parse(data) : [];
   } catch {
-    return defaultGuests;
+    return [];
   }
 };
 
-const saveStoredGuests = (guests) => {
-  localStorage.setItem('hotel_app_guests_v2', JSON.stringify(guests));
+const saveCustomGuests = (guests) => {
+  localStorage.setItem('hotel_app_custom_guests', JSON.stringify(guests));
 };
 
 export const guestApi = {
-  // GET: Fetch all guests & sync with Third-Party User API (DummyJSON / ReqRes)
+  // GET: Fetch all guests directly from Third-Party DummyJSON User API
   async getGuests() {
     let apiUsers = [];
     try {
-      // Call Third-Party User API (DummyJSON / ReqRes)
-      const res = await axios.get('https://dummyjson.com/users?limit=10', { timeout: 3000 });
+      const res = await axios.get('https://dummyjson.com/users?limit=15', { timeout: 4000 });
       apiUsers = res.data?.users || [];
     } catch {
       // API fallback silently
     }
 
-    const stored = getStoredGuests();
+    const transformedGuests = apiUsers.map((user) => {
+      const proofTypes = ['Aadhaar Card', 'Passport', 'Driving License', 'Voter ID'];
+      const proofType = user.bank?.cardType || proofTypes[user.id % proofTypes.length];
+      const proofNum = user.ssn ? `SSN-${user.ssn}` : `892${user.id}-4412-90${user.id}`;
 
-    // Enrich guests with API user images and data
-    const enrichedGuests = stored.map((g, idx) => {
-      const apiUser = apiUsers[idx % (apiUsers.length || 1)];
       return {
-        ...g,
-        image: g.image || apiUser?.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-        apiSource: apiUser ? 'Synced via DummyJSON User API' : 'Real-Time Hotel DB'
+        id: `GST-${1000 + user.id}`,
+        apiUserId: user.id,
+        fullName: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        mobileNumber: user.phone || `+91 98765 4321${user.id}`,
+        address: `${user.address?.address || 'Jubilee Hills'}, ${user.address?.city || 'Hyderabad'}, ${user.address?.state || 'Telangana'}`,
+        idProofType: proofType,
+        idProofNumber: proofNum,
+        nationality: user.address?.country || (user.id % 2 === 0 ? 'Indian' : 'American'),
+        status: user.id % 3 === 0 ? 'VIP Guest' : user.id % 2 === 0 ? 'Active In-House' : 'Checked-Out',
+        roomNumber: user.id % 2 === 0 ? `10${(user.id % 8) + 1}` : 'N/A',
+        visitsCount: user.age ? Math.floor(user.age / 5) : 3,
+        totalSpend: (user.id * 14500) + 16000,
+        emergencyContact: `+1 (555) 019-80${user.id} (${user.lastName} Family)`,
+        notes: `Corporate Role: ${user.role || 'Executive'}. Department: ${user.company?.department || 'Operations'}. Blood Group: ${user.bloodGroup || 'O+'}. Prefers high-floor room with express breakfast.`,
+        image: user.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+        
+        // Full DummyJSON API Specifications
+        age: user.age,
+        gender: user.gender,
+        birthDate: user.birthDate,
+        bloodGroup: user.bloodGroup,
+        eyeColor: user.eyeColor,
+        hairColor: user.hair?.color,
+        hairType: user.hair?.type,
+        height: user.height,
+        weight: user.weight,
+        companyName: user.company?.name || 'Global Enterprise',
+        companyTitle: user.company?.title || 'Executive Specialist',
+        companyDepartment: user.company?.department || 'Operations',
+        bankCardNumber: user.bank?.cardNumber ? `**** **** **** ${user.bank.cardNumber.slice(-4)}` : '**** 4321',
+        bankCardType: user.bank?.cardType || 'Visa / Mastercard',
+        bankCardExpire: user.bank?.cardExpire || '12/28',
+        ssn: user.ssn || `SSN-${user.id}98102`,
+        ein: user.ein || 'EIN-901290',
+        macAddress: user.macAddress || '00:1A:2B:3C:4D:5E',
+        ipAddress: user.ip || '192.168.1.100',
+        apiSource: 'Live Synced via DummyJSON User API'
       };
     });
 
-    return { data: enrichedGuests };
+    const custom = getCustomGuests();
+    return { data: [...custom, ...transformedGuests] };
   },
 
   // GET: Fetch single guest by ID
   async getGuestById(id) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    await new Promise((resolve) => setTimeout(resolve, 150));
     const guests = (await this.getGuests()).data;
     const guest = guests.find((g) => g.id === id);
     if (!guest) {
@@ -194,11 +89,11 @@ export const guestApi = {
 
   // POST: Create a new guest
   async createGuest(guestData) {
-    await new Promise((resolve) => setTimeout(resolve, 350));
-    const guests = getStoredGuests();
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const custom = getCustomGuests();
 
     const newGuest = {
-      id: `GST-${1000 + guests.length + 1}`,
+      id: `GST-${2000 + custom.length + 1}`,
       fullName: guestData.fullName,
       email: guestData.email,
       mobileNumber: guestData.mobileNumber,
@@ -212,40 +107,36 @@ export const guestApi = {
       totalSpend: Number(guestData.totalSpend) || 12000,
       emergencyContact: guestData.emergencyContact || 'Not Specified',
       notes: guestData.notes || 'Registered guest record.',
-      image: guestData.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'
+      image: guestData.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+      apiSource: 'User Created Profile'
     };
 
-    const updatedGuests = [newGuest, ...guests];
-    saveStoredGuests(updatedGuests);
+    const updated = [newGuest, ...custom];
+    saveCustomGuests(updated);
     return { data: newGuest };
   },
 
   // PUT: Update guest profile
   async updateGuest(id, updatedData) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    const guests = getStoredGuests();
-    const index = guests.findIndex((g) => g.id === id);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    const custom = getCustomGuests();
+    const index = custom.findIndex((g) => g.id === id);
 
-    if (index === -1) {
-      throw new Error(`Guest with ID ${id} not found`);
+    if (index !== -1) {
+      custom[index] = { ...custom[index], ...updatedData };
+      saveCustomGuests(custom);
+      return { data: custom[index] };
     }
 
-    const updatedGuest = {
-      ...guests[index],
-      ...updatedData
-    };
-
-    guests[index] = updatedGuest;
-    saveStoredGuests(guests);
-    return { data: updatedGuest };
+    return { data: { id, ...updatedData } };
   },
 
   // DELETE: Remove guest record
   async deleteGuest(id) {
-    await new Promise((resolve) => setTimeout(resolve, 250));
-    const guests = getStoredGuests();
-    const updatedGuests = guests.filter((g) => g.id !== id);
-    saveStoredGuests(updatedGuests);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    const custom = getCustomGuests();
+    const updated = custom.filter((g) => g.id !== id);
+    saveCustomGuests(updated);
     return { data: { success: true, id } };
   }
 };

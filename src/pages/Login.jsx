@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -17,14 +17,53 @@ import {
   CheckCircle2,
   Star,
   Zap,
-  Check
+  Check,
+  Camera
 } from 'lucide-react';
+
+const luxuryScenes = [
+  {
+    id: 1,
+    title: 'Ocean Infinity Resort',
+    location: 'Celestia Private Bay',
+    url: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1600&q=80'
+  },
+  {
+    id: 2,
+    title: 'Overwater Villa Sanctuary',
+    location: 'Island Horizon Suites',
+    url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1600&q=80'
+  },
+  {
+    id: 3,
+    title: 'Grand Palace Facade',
+    location: 'Celestia Main Plaza',
+    url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80'
+  },
+  {
+    id: 4,
+    title: 'Royal Night Lounge',
+    location: 'Presidential Penthouse',
+    url: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1600&q=80'
+  }
+];
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [activeSceneIndex, setActiveSceneIndex] = useState(0);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const activeScene = luxuryScenes[activeSceneIndex];
+
+  // Auto-rotate background luxury scene
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSceneIndex((prev) => (prev + 1) % luxuryScenes.length);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, []);
 
   const from = location.state?.from?.pathname || '/dashboard';
 
@@ -63,24 +102,45 @@ const Login = () => {
       <div className="hidden lg:flex lg:col-span-6 xl:col-span-7 relative flex-col justify-between p-12 overflow-hidden bg-slate-900 text-white">
         {/* Background Image with Dark Overlay */}
         <img
-          src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80"
-          alt="Grand Horizon Resort Exterior"
-          className="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-transform duration-10000 ease-out"
+          key={activeScene.id}
+          src={activeScene.url}
+          alt={activeScene.title}
+          className="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-all duration-1000 ease-in-out"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-slate-950/40" />
 
-        {/* Top Header: Brand Logo */}
+        {/* Top Header: Brand Logo & Interactive Scene Switcher */}
         <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white p-2.5 rounded-2xl shadow-xl border border-white/20">
               <Hotel className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-xl font-black tracking-tight text-white">Grand Horizon</h1>
+              <h1 className="text-xl font-black tracking-tight text-white">Celestia Grand</h1>
               <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest -mt-0.5">
                 Luxury Hotel & Resort Suite
               </p>
             </div>
+          </div>
+
+          {/* Interactive Scene Switcher */}
+          <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/20">
+            <Camera className="w-3.5 h-3.5 text-indigo-300 ml-1 mr-0.5" />
+            {luxuryScenes.map((scene, idx) => (
+              <button
+                key={scene.id}
+                type="button"
+                onClick={() => setActiveSceneIndex(idx)}
+                className={`px-2.5 py-1 rounded-xl text-[10px] font-extrabold transition cursor-pointer ${
+                  activeSceneIndex === idx
+                    ? 'bg-white text-slate-900 shadow-md'
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+                title={scene.title}
+              >
+                Scene 0{scene.id}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -139,7 +199,7 @@ const Login = () => {
           </div>
 
           <div className="text-[11px] text-slate-400">
-            © 2026 Grand Horizon Suite
+            © 2026 Celestia Grand Suite
           </div>
         </div>
       </div>
@@ -153,7 +213,7 @@ const Login = () => {
             <Hotel className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-lg font-black tracking-tight text-slate-900">Grand Horizon</h1>
+            <h1 className="text-lg font-black tracking-tight text-slate-900">Celestia Grand</h1>
             <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-widest -mt-0.5">
               Hotel Suite
             </p>
@@ -171,7 +231,7 @@ const Login = () => {
               Welcome Back
             </h2>
             <p className="text-sm text-slate-500 mt-1.5">
-              Sign in with your credentials to access the Grand Horizon Desk.
+              Sign in with your credentials to access the Celestia Grand Desk.
             </p>
           </div>
 
@@ -309,7 +369,7 @@ const Login = () => {
 
         {/* Footer info */}
         <div className="text-center text-[11px] text-slate-400 font-medium mt-8">
-          Grand Horizon Hotel Suite v4.2 • Secured Access
+          Celestia Grand Hotel Suite v4.2 • Secured Access
         </div>
 
       </div>

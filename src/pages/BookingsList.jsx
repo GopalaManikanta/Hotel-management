@@ -19,20 +19,24 @@ import {
   List,
   ChevronLeft,
   ChevronRight,
-  User,
-  XCircle
+  XCircle,
+  Printer,
+  Receipt,
+  Moon,
+  X
 } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 6;
 
 const BookingsList = () => {
-  const { bookings, checkInBooking, checkOutBooking, kpi } = useHotel();
+  const { bookings, checkInBooking, checkOutBooking, cancelBooking, kpi } = useHotel();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [viewMode, setViewMode] = useState('table');
   const [currentPage, setCurrentPage] = useState(1);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [selectedReceiptBooking, setSelectedReceiptBooking] = useState(null);
 
   const formatINR = (val) => {
     return new Intl.NumberFormat('en-IN', {
@@ -99,6 +103,12 @@ const BookingsList = () => {
             <AlertCircle className="w-3 h-3 text-slate-500" /> Checked-Out
           </span>
         );
+      case 'Cancelled':
+        return (
+          <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 shadow-xs">
+            <XCircle className="w-3 h-3 text-rose-600" /> Cancelled
+          </span>
+        );
       default:
         return (
           <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
@@ -117,13 +127,13 @@ const BookingsList = () => {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold mb-2 shadow-xs">
               <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              Bookings & Reservations Manager
+              Bookings & Reservations Engine
             </div>
             <h1 className="text-3xl font-black tracking-tight text-slate-900">
               Reservation Directory & Front Desk Ledger
             </h1>
             <p className="text-slate-500 text-sm mt-1">
-              Live guest bookings, express check-in/out triggers, and room assignment records.
+              Live guest bookings, double-booking prevention, express check-in/out triggers, and receipts.
             </p>
           </div>
 
@@ -164,7 +174,7 @@ const BookingsList = () => {
           </div>
         </div>
 
-        {/* Real-Time Operational KPI Cards */}
+        {/* Operational KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
             <div>
@@ -241,6 +251,7 @@ const BookingsList = () => {
                 <option value="Confirmed">Confirmed</option>
                 <option value="Checked-In">Checked-In</option>
                 <option value="Checked-Out">Checked-Out</option>
+                <option value="Cancelled">Cancelled</option>
               </select>
             </div>
           </div>
@@ -291,9 +302,9 @@ const BookingsList = () => {
                 <thead>
                   <tr className="border-b border-slate-200 text-slate-500 uppercase tracking-wider text-[10px] font-bold bg-white">
                     <th className="p-4">Booking ID & Guest</th>
-                    <th className="p-4">Room & Type</th>
-                    <th className="p-4">Stay Dates</th>
-                    <th className="p-4">Total Bill</th>
+                    <th className="p-4">Room Specs</th>
+                    <th className="p-4">Stay Dates & Duration</th>
+                    <th className="p-4">Billing Specs</th>
                     <th className="p-4">Status</th>
                     <th className="p-4 text-right">Actions</th>
                   </tr>
@@ -309,6 +320,13 @@ const BookingsList = () => {
                           <div>
                             <div className="font-extrabold text-slate-900 text-sm">{b.guestName}</div>
                             <div className="text-[10px] text-indigo-600 font-bold">{b.id} • {b.guestEmail}</div>
+                            <div className="text-[10px] text-slate-500 font-semibold flex items-center gap-1 mt-0.5">
+                              <span>📱 {b.guestMobile || '+91 98765 43210'}</span>
+                              <span>•</span>
+                              <span className="text-emerald-700 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200 font-bold">
+                                {b.idProofType || 'Aadhaar'}: {b.idProofNumber || '8921-4412-9012'}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -322,35 +340,58 @@ const BookingsList = () => {
                       </td>
 
                       <td className="p-4 font-semibold text-slate-700">
-                        <div>{b.checkIn}</div>
-                        <div className="text-[10px] text-slate-400">to {b.checkOut}</div>
+                        <div className="flex items-center gap-1">
+                          <Moon className="w-3 h-3 text-indigo-600" />
+                          <span className="font-bold text-indigo-600">{b.nights || 2} Nights</span>
+                        </div>
+                        <div className="text-[11px] text-slate-500">{b.checkIn} to {b.checkOut}</div>
                       </td>
 
                       <td className="p-4 font-black text-indigo-600">
-                        {formatINR(b.amount)}
+                        <div>{formatINR(b.amount)}</div>
+                        <span className="text-[10px] text-slate-400 font-semibold">{b.paymentMethod || 'Card/UPI'}</span>
                       </td>
 
                       <td className="p-4">{getStatusBadge(b.status)}</td>
 
                       <td className="p-4 text-right space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedReceiptBooking(b)}
+                          className="p-1.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 transition cursor-pointer shadow-xs inline-flex items-center gap-1 font-bold text-[11px]"
+                          title="View Receipt Sheet"
+                        >
+                          <Receipt className="w-3.5 h-3.5 text-indigo-600" /> Receipt
+                        </button>
+
                         {b.status === 'Confirmed' || b.status === 'Pending' ? (
-                          <button
-                            type="button"
-                            onClick={() => checkInBooking(b.id)}
-                            className="inline-flex items-center gap-1 bg-white hover:bg-emerald-50 text-emerald-700 border border-slate-200 px-3 py-1.5 rounded-xl font-bold text-xs transition cursor-pointer shadow-xs"
-                          >
-                            <LogIn className="w-3.5 h-3.5 text-emerald-600" /> Check-In
-                          </button>
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => checkInBooking(b.id)}
+                              className="inline-flex items-center gap-1 bg-white hover:bg-emerald-50 text-emerald-700 border border-slate-200 px-2.5 py-1 rounded-xl font-bold text-[11px] transition cursor-pointer shadow-xs"
+                            >
+                              <LogIn className="w-3.5 h-3.5 text-emerald-600" /> Check-In
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => cancelBooking(b.id)}
+                              className="inline-flex items-center gap-1 bg-white hover:bg-rose-50 text-rose-700 border border-slate-200 px-2 py-1 rounded-xl font-bold text-[11px] transition cursor-pointer shadow-xs"
+                              title="Cancel Reservation"
+                            >
+                              <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                            </button>
+                          </>
                         ) : b.status === 'Checked-In' ? (
                           <button
                             type="button"
                             onClick={() => checkOutBooking(b.id)}
-                            className="inline-flex items-center gap-1 bg-white hover:bg-rose-50 text-rose-700 border border-slate-200 px-3 py-1.5 rounded-xl font-bold text-xs transition cursor-pointer shadow-xs"
+                            className="inline-flex items-center gap-1 bg-white hover:bg-rose-50 text-rose-700 border border-slate-200 px-2.5 py-1 rounded-xl font-bold text-[11px] transition cursor-pointer shadow-xs"
                           >
                             <LogOut className="w-3.5 h-3.5 text-rose-600" /> Check-Out
                           </button>
                         ) : (
-                          <span className="text-slate-400 text-xs font-semibold">Processed</span>
+                          <span className="text-slate-400 text-[11px] font-semibold">Archived</span>
                         )}
                       </td>
                     </tr>
@@ -376,35 +417,43 @@ const BookingsList = () => {
 
                     <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 my-2 space-y-1">
                       <div className="flex justify-between font-bold text-slate-800">
-                        <span>Room {b.roomNumber}</span>
-                        <span className="text-indigo-600">{formatINR(b.amount)}</span>
+                        <span>Room {b.roomNumber} ({b.roomType})</span>
+                        <span className="text-indigo-600 font-black">{formatINR(b.amount)}</span>
                       </div>
-                      <div className="text-[11px] text-slate-500">{b.roomType}</div>
-                      <div className="text-[10px] text-slate-400 pt-1">{b.checkIn} to {b.checkOut}</div>
+                      <div className="flex justify-between text-[11px] text-slate-500">
+                        <span>{b.nights || 2} Nights</span>
+                        <span>{b.checkIn} to {b.checkOut}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex justify-end">
+                <div className="pt-3 border-t border-slate-100 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedReceiptBooking(b)}
+                    className="py-2 px-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs flex-1 flex items-center justify-center gap-1 shadow-xs cursor-pointer"
+                  >
+                    <Receipt className="w-3.5 h-3.5 text-indigo-600" /> Receipt
+                  </button>
+
                   {b.status === 'Confirmed' ? (
                     <button
                       type="button"
                       onClick={() => checkInBooking(b.id)}
-                      className="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md transition flex items-center justify-center gap-1"
+                      className="py-2 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md transition flex items-center gap-1 cursor-pointer"
                     >
-                      <LogIn className="w-4 h-4" /> Check-In Guest
+                      <LogIn className="w-3.5 h-3.5" /> Check-In
                     </button>
                   ) : b.status === 'Checked-In' ? (
                     <button
                       type="button"
                       onClick={() => checkOutBooking(b.id)}
-                      className="w-full py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-md transition flex items-center justify-center gap-1"
+                      className="py-2 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-md transition flex items-center gap-1 cursor-pointer"
                     >
-                      <LogOut className="w-4 h-4" /> Process Check-Out
+                      <LogOut className="w-3.5 h-3.5" /> Check-Out
                     </button>
-                  ) : (
-                    <div className="text-xs font-bold text-slate-400 text-center w-full py-1">Completed Reservation</div>
-                  )}
+                  ) : null}
                 </div>
               </div>
             ))}
@@ -460,11 +509,87 @@ const BookingsList = () => {
 
       </div>
 
-      {/* Booking Modal */}
+      {/* Booking Form Modal */}
       <BookingFormModal
         isOpen={isBookingModalOpen}
         onClose={() => setIsBookingModalOpen(false)}
       />
+
+      {/* Printable Booking Confirmation Receipt Modal */}
+      {selectedReceiptBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-lg shadow-2xl p-6 text-slate-900 space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2 font-extrabold text-base text-slate-900">
+                <Receipt className="w-5 h-5 text-indigo-600" />
+                Booking Confirmation Receipt
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedReceiptBooking(null)}
+                className="p-1 rounded-xl bg-white text-slate-500 hover:text-slate-800 border border-slate-200 shadow-xs cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs space-y-3">
+              <div className="flex justify-between items-center pb-2 border-b border-slate-200">
+                <span className="text-slate-400 font-bold uppercase">Booking Reference</span>
+                <span className="font-mono font-black text-indigo-600 text-sm">{selectedReceiptBooking.id}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-bold">Guest Name:</span>
+                <strong className="text-slate-900">{selectedReceiptBooking.guestName} ({selectedReceiptBooking.guestEmail})</strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-bold">Mobile Phone:</span>
+                <strong className="text-slate-900">{selectedReceiptBooking.guestMobile || '+91 98765 43210'}</strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-bold">Verified ID Proof:</span>
+                <strong className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  {selectedReceiptBooking.idProofType || 'Aadhaar Card'}: {selectedReceiptBooking.idProofNumber || '8921-4412-9012'}
+                </strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-bold">Assigned Room:</span>
+                <strong className="text-indigo-600">Room {selectedReceiptBooking.roomNumber} ({selectedReceiptBooking.roomType})</strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-bold">Check-In / Check-Out:</span>
+                <span className="font-semibold text-slate-800">{selectedReceiptBooking.checkIn} to {selectedReceiptBooking.checkOut}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-bold">Stay Duration:</span>
+                <span className="font-bold text-slate-800">{selectedReceiptBooking.nights || 2} Nights</span>
+              </div>
+
+              <div className="flex justify-between pt-2 border-t border-slate-200 text-sm font-black">
+                <span>Total Amount Paid:</span>
+                <span className="text-emerald-600">{formatINR(selectedReceiptBooking.amount)}</span>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs shadow-md transition flex items-center gap-1.5 cursor-pointer"
+              >
+                <Printer className="w-4 h-4" /> Print Receipt
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </Layout>
   );
 };

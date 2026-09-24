@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { X, UserPlus, User, Mail, Phone, MapPin, ShieldCheck, Globe, BedDouble, AlertCircle } from 'lucide-react';
+import { X, UserPlus, User, Mail, Phone, MapPin, ShieldCheck, Globe, BedDouble } from 'lucide-react';
 
 const GuestFormModal = ({ isOpen, onClose, onSubmitGuest, initialData = null, title = 'Add New Guest' }) => {
   const {

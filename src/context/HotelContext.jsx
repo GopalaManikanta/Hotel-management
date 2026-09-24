@@ -19,6 +19,64 @@ export const HotelProvider = ({ children }) => {
     }
   });
 
+  // System Live Notifications State
+  const [notifications, setNotifications] = useState([
+    {
+      id: 'notif-1',
+      title: 'New Check-In Expected',
+      message: 'Guest Rajesh Verma expected for Check-In today at 02:00 PM.',
+      time: '10 mins ago',
+      type: 'booking',
+      read: false
+    },
+    {
+      id: 'notif-2',
+      title: 'Housekeeping Audit Completed',
+      message: 'Room 101 marked as Cleaned & Sanitized with 99.8% score.',
+      time: '1 hour ago',
+      type: 'room',
+      read: false
+    },
+    {
+      id: 'notif-3',
+      title: 'System Baseline Active',
+      message: 'Celestia Grand Hotel Management system operating cleanly on 0 Baseline.',
+      time: '2 hours ago',
+      type: 'system',
+      read: true
+    }
+  ]);
+
+  const addNotification = (notif) => {
+    const newNotif = {
+      id: `notif-${Date.now()}`,
+      time: 'Just now',
+      read: false,
+      ...notif
+    };
+    setNotifications((prev) => [newNotif, ...prev]);
+  };
+
+  const markNotificationAsRead = (id) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+  };
+
+  const markAllNotificationsAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    toast.success('All notifications marked as read.');
+  };
+
+  const clearAllNotifications = () => {
+    setNotifications([]);
+    toast.info('Notifications cleared.');
+  };
+
+  const removeNotification = (id) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -33,7 +91,7 @@ export const HotelProvider = ({ children }) => {
       ]);
       setRooms(roomsRes.data);
       setGuests(guestsRes.data);
-    } catch (err) {
+    } catch {
       setError('Failed to fetch data from API server. Please try again.');
       toast.error('Failed to load hotel operations data.');
     } finally {
@@ -180,18 +238,48 @@ export const HotelProvider = ({ children }) => {
     }
   };
 
+  // Double Booking Prevention Helper
+  const isRoomDoubleBooked = (roomNumber, checkIn, checkOut, excludeBookingId = null) => {
+    if (!roomNumber || !checkIn || !checkOut) return false;
+    const reqIn = new Date(checkIn);
+    const reqOut = new Date(checkOut);
+
+    return bookings.some((b) => {
+      if (b.id === excludeBookingId) return false;
+      if (b.roomNumber !== roomNumber) return false;
+      if (b.status === 'Cancelled' || b.status === 'Checked-Out') return false;
+
+      const existingIn = new Date(b.checkIn);
+      const existingOut = new Date(b.checkOut);
+
+      return reqIn < existingOut && reqOut > existingIn;
+    });
+  };
+
   // Action: Add Booking
   const addBooking = (newBookingData) => {
     const rNum = newBookingData.roomNumber?.toString().trim() || '101';
+    const cIn = newBookingData.checkIn || todayDateStr;
+    const cOut = newBookingData.checkOut || todayDateStr;
+
+    // Double Booking Prevention Guard
+    if (isRoomDoubleBooked(rNum, cIn, cOut)) {
+      toast.error(`Double Booking Conflict: Room ${rNum} is already reserved for the selected dates!`);
+      return false;
+    }
+
     const rType = newBookingData.roomType || 'Standard Room';
     const rPrice = Number(newBookingData.amount) || 5000;
+    const nights = Number(newBookingData.nights) || 1;
 
     const initials = newBookingData.guestName
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+      ? newBookingData.guestName
+          .split(' ')
+          .map((n) => n[0])
+          .join('')
+          .toUpperCase()
+          .slice(0, 2)
+      : 'G';
 
     const newBooking = {
       id: `BK-${1000 + bookings.length + 1}`,
@@ -199,22 +287,56 @@ export const HotelProvider = ({ children }) => {
       guestEmail: newBookingData.guestEmail,
       roomNumber: rNum,
       roomType: rType,
-      checkIn: newBookingData.checkIn || todayDateStr,
-      checkOut: newBookingData.checkOut || todayDateStr,
+      checkIn: cIn,
+      checkOut: cOut,
+      nights: nights,
       amount: rPrice,
-      status: 'Confirmed',
+      baseAmount: newBookingData.baseAmount || rPrice,
+      taxAmount: newBookingData.taxAmount || 0,
+      status: newBookingData.status || 'Confirmed',
+      paymentMethod: newBookingData.paymentMethod || 'Credit Card / UPI',
       avatar: initials || 'G'
     };
 
     setBookings((prev) => [newBooking, ...prev]);
 
     // Update Room status to Occupied
-    setRooms((prev) =>
-      prev.map((r) => (r.number === rNum ? { ...r, status: 'Occupied' } : r))
-    );
+    if (newBooking.status !== 'Cancelled') {
+      setRooms((prev) =>
+        prev.map((r) => (r.number === rNum ? { ...r, status: 'Occupied' } : r))
+      );
+    }
+
+    addNotification({
+      title: 'New Room Booking',
+      message: `Reservation confirmed for ${newBooking.guestName} in Room ${rNum} (${newBooking.roomType}).`,
+      type: 'booking'
+    });
 
     toast.success(`Booking ${newBooking.id} created for ${newBooking.guestName} in Room ${rNum}!`);
     return true;
+  };
+
+  // Action: Cancel Booking
+  const cancelBooking = (bookingId) => {
+    const booking = bookings.find((b) => b.id === bookingId);
+    if (!booking) return;
+
+    setBookings((prev) =>
+      prev.map((b) => (b.id === bookingId ? { ...b, status: 'Cancelled' } : b))
+    );
+
+    setRooms((prev) =>
+      prev.map((r) => (r.number === booking.roomNumber ? { ...r, status: 'Available' } : r))
+    );
+
+    addNotification({
+      title: 'Booking Cancelled',
+      message: `Reservation ${booking.id} (${booking.guestName}) was cancelled.`,
+      type: 'cancel'
+    });
+
+    toast.info(`Booking ${booking.id} cancelled. Room ${booking.roomNumber} is now Available.`);
   };
 
   // Action: Check In Booking
@@ -229,6 +351,12 @@ export const HotelProvider = ({ children }) => {
     setRooms((prev) =>
       prev.map((r) => (r.number === booking.roomNumber ? { ...r, status: 'Occupied' } : r))
     );
+
+    addNotification({
+      title: 'Guest Checked In',
+      message: `Guest ${booking.guestName} checked into Room ${booking.roomNumber}.`,
+      type: 'booking'
+    });
 
     toast.success(`Guest ${booking.guestName} checked into Room ${booking.roomNumber}!`);
   };
@@ -246,6 +374,12 @@ export const HotelProvider = ({ children }) => {
       prev.map((r) => (r.number === booking.roomNumber ? { ...r, status: 'Available' } : r))
     );
 
+    addNotification({
+      title: 'Guest Checked Out',
+      message: `Guest ${booking.guestName} checked out from Room ${booking.roomNumber}.`,
+      type: 'booking'
+    });
+
     toast.info(`Guest ${booking.guestName} checked out. Room ${booking.roomNumber} is now Available.`);
   };
 
@@ -254,6 +388,7 @@ export const HotelProvider = ({ children }) => {
     setRooms([]);
     setGuests([]);
     setBookings([]);
+    setNotifications([]);
     localStorage.removeItem('hotel_app_rooms_v4');
     localStorage.removeItem('hotel_app_guests_v1');
     localStorage.removeItem('hotel_app_bookings_v4');
@@ -266,6 +401,12 @@ export const HotelProvider = ({ children }) => {
         rooms,
         guests,
         bookings,
+        notifications,
+        addNotification,
+        markNotificationAsRead,
+        markAllNotificationsAsRead,
+        clearAllNotifications,
+        removeNotification,
         isLoading,
         error,
         fetchRooms: fetchAllData,
@@ -297,6 +438,8 @@ export const HotelProvider = ({ children }) => {
         addBooking,
         checkInBooking,
         checkOutBooking,
+        cancelBooking,
+        isRoomDoubleBooked,
         resetToCleanState
       }}
     >

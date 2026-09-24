@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import RoomFormModal from '../components/RoomFormModal';
+import BookingFormModal from '../components/BookingFormModal';
 import { roomApi } from '../services/roomApi';
 import { useHotel } from '../context/HotelContext';
 import { toast } from 'react-toastify';
@@ -12,9 +13,7 @@ import {
   Layers,
   Sparkles,
   Wifi,
-  Tv,
   Wind,
-  Coffee,
   ShieldCheck,
   Edit,
   AlertCircle,
@@ -22,27 +21,26 @@ import {
   Phone,
   Mail,
   UserCheck,
-  Calendar,
   CheckCircle2,
   Sparkle,
   Printer,
   PlusCircle,
   Clock,
   Wine,
-  Lock,
   Bath
 } from 'lucide-react';
 
 const RoomDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { editRoom, toggleRoomStatus, addBooking } = useHotel();
+  const { editRoom, toggleRoomStatus } = useHotel();
 
   const [room, setRoom] = useState(null);
   const [activeImage, setActiveImage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const formatINR = (val) => {
     return new Intl.NumberFormat('en-IN', {
@@ -98,26 +96,7 @@ const RoomDetails = () => {
       toast.warn(`Room ${room.number} is currently occupied.`);
       return;
     }
-    addBooking({
-      guestName: 'Express Guest',
-      guestEmail: 'guest@hotel.com',
-      roomNumber: room.number,
-      roomType: room.type,
-      amount: room.price * 2
-    });
-    setRoom((prev) => ({
-      ...prev,
-      status: 'Occupied',
-      currentOccupant: {
-        bookingId: `BK-${Date.now().toString().slice(-4)}`,
-        guestName: 'Express Guest',
-        email: 'guest@hotel.com',
-        phone: '+91 98765 00000',
-        checkIn: new Date().toISOString().split('T')[0],
-        checkOut: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
-        paymentStatus: 'Confirmed'
-      }
-    }));
+    setIsBookingModalOpen(true);
   };
 
   const handlePrintSpecSheet = () => {
@@ -547,13 +526,20 @@ const RoomDetails = () => {
 
       {/* Edit Room Modal */}
       {room && (
-        <RoomFormModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          onSubmitRoom={handleEditSubmit}
-          initialData={room}
-          title={`Edit Room ${room.number}`}
-        />
+        <>
+          <RoomFormModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            onSubmitRoom={handleEditSubmit}
+            initialData={room}
+            title={`Edit Room ${room.number}`}
+          />
+          <BookingFormModal
+            isOpen={isBookingModalOpen}
+            onClose={() => setIsBookingModalOpen(false)}
+            initialRoom={room}
+          />
+        </>
       )}
     </Layout>
   );

@@ -14,9 +14,7 @@ import {
   UserPlus,
   Sparkles,
   CheckCircle2,
-  Building2,
-  ShieldCheck,
-  Zap
+  ShieldCheck
 } from 'lucide-react';
 
 const Register = () => {
@@ -66,8 +64,8 @@ const Register = () => {
       <div className="hidden lg:flex lg:col-span-6 xl:col-span-7 relative flex-col justify-between p-12 overflow-hidden bg-slate-900 text-white">
         {/* Background Image with Dark Overlay */}
         <img
-          src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=80"
-          alt="Grand Horizon Luxury Resort Pool & Lounge"
+          src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1600&q=80"
+          alt="Celestia Grand Luxury Sanctuary & Overwater Villa"
           className="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-transform duration-10000 ease-out"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-slate-950/40" />
@@ -79,7 +77,7 @@ const Register = () => {
               <Hotel className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-xl font-black tracking-tight text-white">Grand Horizon</h1>
+              <h1 className="text-xl font-black tracking-tight text-white">Celestia Grand</h1>
               <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest -mt-0.5">
                 Luxury Hotel & Resort Suite
               </p>
@@ -124,7 +122,7 @@ const Register = () => {
           </div>
 
           <div className="text-[11px] text-slate-400">
-            © 2026 Grand Horizon Suite
+            © 2026 Celestia Grand Suite
           </div>
         </div>
       </div>
@@ -138,7 +136,7 @@ const Register = () => {
             <Hotel className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-lg font-black tracking-tight text-slate-900">Grand Horizon</h1>
+            <h1 className="text-lg font-black tracking-tight text-slate-900">Celestia Grand</h1>
             <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-widest -mt-0.5">
               Hotel Suite
             </p>
@@ -344,7 +342,7 @@ const Register = () => {
         </div>
 
         <div className="text-center text-[11px] text-slate-400 font-medium mt-6">
-          Grand Horizon Hotel Suite v4.2 • Registration Portal
+          Celestia Grand Hotel Suite v4.2 • Registration Portal
         </div>
 
       </div>

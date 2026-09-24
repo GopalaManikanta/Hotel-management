@@ -7,31 +7,26 @@ import { useHotel } from '../context/HotelContext';
 import { toast } from 'react-toastify';
 import {
   ArrowLeft,
-  User,
   Mail,
   Phone,
   MapPin,
   ShieldCheck,
-  Globe,
   BedDouble,
   Sparkles,
   Edit,
   AlertCircle,
   Calendar,
-  IndianRupee,
   CheckCircle2,
   Printer,
   PlusCircle,
   Star,
-  UserCheck,
-  Clock,
   HeartHandshake
 } from 'lucide-react';
 
 const GuestProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { editGuest, addBooking, bookings } = useHotel();
+  const { editGuest, addBooking, bookings = [] } = useHotel();
 
   const [guest, setGuest] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,20 +41,19 @@ const GuestProfile = () => {
     }).format(val || 0);
   };
 
-  const loadGuestDetails = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const res = await guestApi.getGuestById(id);
-      setGuest(res.data);
-    } catch (err) {
-      setError(err.message || 'Guest record not found');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const loadGuestDetails = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await guestApi.getGuestById(id);
+        setGuest(res.data);
+      } catch (err) {
+        setError(err.message || 'Guest record not found');
+      } finally {
+        setIsLoading(false);
+      }
+    };
     loadGuestDetails();
   }, [id]);
 
@@ -67,7 +61,8 @@ const GuestProfile = () => {
     if (!guest) return false;
     const success = await editGuest(guest.id, data);
     if (success) {
-      loadGuestDetails();
+      const res = await guestApi.getGuestById(id);
+      setGuest(res.data);
     }
     return success;
   };
@@ -86,17 +81,6 @@ const GuestProfile = () => {
 
   const handlePrintGuestCard = () => {
     window.print();
-  };
-
-  const getInitials = (name) => {
-    return name
-      ? name
-          .split(' ')
-          .map((n) => n[0])
-          .join('')
-          .toUpperCase()
-          .slice(0, 2)
-      : 'G';
   };
 
   // Derived guest bookings from global state
@@ -284,6 +268,67 @@ const GuestProfile = () => {
                   <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-1">
                     <span className="text-[10px] font-bold text-slate-400 uppercase">ID Proof Number</span>
                     <div className="font-mono font-black text-indigo-600 text-sm tracking-wider">{guest.idProofNumber}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Extended DummyJSON API Specifications Card */}
+              <div className="bg-gradient-to-br from-indigo-50/50 to-slate-50 border border-indigo-100 rounded-3xl p-6 shadow-xs space-y-5">
+                <div className="flex items-center justify-between border-b border-indigo-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 rounded-xl bg-indigo-600 text-white font-black text-xs">
+                      API
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-slate-900 text-base">Live DummyJSON Profile Specifications</h3>
+                      <p className="text-xs text-slate-500">Full API Demographics, Corporate, Health & Financial Ledger</p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white text-indigo-700 border border-indigo-200">
+                    3rd-Party API Synced
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  {/* Demographics */}
+                  <div className="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Age & Birthdate</span>
+                    <div className="font-extrabold text-slate-900">{guest.age || 32} Yrs ({guest.birthDate || '1994-06-15'})</div>
+                    <div className="text-[11px] text-slate-500 font-semibold">Gender: <strong className="text-slate-800 uppercase">{guest.gender || 'Female'}</strong></div>
+                  </div>
+
+                  {/* Health & Specs */}
+                  <div className="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Physical & Health Specs</span>
+                    <div className="font-extrabold text-slate-900">Blood: <span className="text-rose-600">{guest.bloodGroup || 'O+'}</span> • {guest.height || 172} cm</div>
+                    <div className="text-[11px] text-slate-500 font-semibold">Eyes: {guest.eyeColor || 'Brown'} • Hair: {guest.hairColor || 'Black'}</div>
+                  </div>
+
+                  {/* Corporate Info */}
+                  <div className="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Corporate Company & Title</span>
+                    <div className="font-extrabold text-indigo-600 truncate">{guest.companyName || 'Global Enterprise'}</div>
+                    <div className="text-[11px] text-slate-600 font-bold">{guest.companyTitle || 'Executive Specialist'} ({guest.companyDepartment || 'Operations'})</div>
+                  </div>
+
+                  {/* Bank Payment Card */}
+                  <div className="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Bank Payment Card</span>
+                    <div className="font-mono font-bold text-slate-900">{guest.bankCardNumber || '**** **** **** 4321'}</div>
+                    <div className="text-[11px] text-emerald-600 font-extrabold">{guest.bankCardType || 'Visa / Mastercard'} (Exp: {guest.bankCardExpire || '12/28'})</div>
+                  </div>
+
+                  {/* SSN & Identifiers */}
+                  <div className="sm:col-span-2 p-3.5 rounded-2xl bg-white border border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase block">Government SSN / Tax ID</span>
+                      <strong className="font-mono text-slate-900 text-xs">{guest.ssn || 'SSN-90129841'}</strong>
+                    </div>
+
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase block">Network Endpoint</span>
+                      <span className="font-mono text-xs text-slate-600">IP: {guest.ipAddress || '192.168.1.45'}</span>
+                    </div>
                   </div>
                 </div>
               </div>

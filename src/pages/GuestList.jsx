@@ -15,7 +15,6 @@ import {
   Mail,
   ShieldCheck,
   Globe,
-  BedDouble,
   Sparkles,
   RefreshCcw,
   LayoutGrid,
@@ -43,13 +42,6 @@ const GuestList = () => {
   const [editingGuest, setEditingGuest] = useState(null);
   const [deletingGuestId, setDeletingGuestId] = useState(null);
 
-  const formatINR = (val) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(val || 0);
-  };
 
   // Extract unique nationalities for filter dropdown
   const uniqueNationalities = useMemo(() => {
@@ -136,17 +128,6 @@ const GuestList = () => {
           </span>
         );
     }
-  };
-
-  const getInitials = (name) => {
-    return name
-      ? name
-          .split(' ')
-          .map((n) => n[0])
-          .join('')
-          .toUpperCase()
-          .slice(0, 2)
-      : 'G';
   };
 
   return (
