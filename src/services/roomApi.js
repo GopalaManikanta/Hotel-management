@@ -55,33 +55,11 @@ const defaultRooms = Array.from({ length: 20 }, (_, i) => {
     ];
   }
 
-  // Set initial status distribution
+  // Default status is Available (occupancy driven dynamically by bookings ledger)
   let status = 'Available';
   let currentOccupant = null;
 
-  if (i === 2) {
-    status = 'Occupied';
-    currentOccupant = {
-      bookingId: 'BK-1003',
-      guestName: 'Ananya Sharma',
-      email: 'ananya@example.com',
-      phone: '+91 98765 43210',
-      checkIn: '2026-09-22',
-      checkOut: '2026-09-25',
-      paymentStatus: 'Paid in Full (₹25,500)'
-    };
-  } else if (i === 6) {
-    status = 'Occupied';
-    currentOccupant = {
-      bookingId: 'BK-1002',
-      guestName: 'Vikram Reddy',
-      email: 'vikram.r@example.com',
-      phone: '+91 91234 56789',
-      checkIn: '2026-09-22',
-      checkOut: '2026-09-26',
-      paymentStatus: 'Deposit Paid (₹42,000)'
-    };
-  } else if (i === 11) {
+  if (i === 11) {
     status = 'Maintenance';
   }
 

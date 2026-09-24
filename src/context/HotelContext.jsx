@@ -7,15 +7,81 @@ const HotelContext = createContext();
 
 export const useHotel = () => useContext(HotelContext);
 
+const initialSeedBookings = [
+  {
+    id: 'BK-1001',
+    guestName: 'Rajesh Verma',
+    guestEmail: 'rajesh.verma@example.com',
+    guestMobile: '+91 98765 43210',
+    idProofType: 'Aadhaar Card',
+    idProofNumber: '8921-4412-9012',
+    roomNumber: '101',
+    roomType: 'Standard Room',
+    checkIn: '2026-09-23',
+    checkOut: '2026-09-26',
+    nights: 3,
+    amount: 11500,
+    baseAmount: 10000,
+    taxAmount: 1500,
+    status: 'Checked-In',
+    actualCheckInTime: '23 Sep 2026, 02:30 PM',
+    keyCardNumber: 'KEY-9012',
+    keysIssued: 2,
+    paymentMethod: 'UPI / GPay',
+    avatar: 'RV'
+  },
+  {
+    id: 'BK-1002',
+    guestName: 'Ananya Sharma',
+    guestEmail: 'ananya.sharma@example.com',
+    guestMobile: '+91 91234 56789',
+    idProofType: 'Passport',
+    idProofNumber: 'Z-8921401',
+    roomNumber: '201',
+    roomType: 'Deluxe Suite',
+    checkIn: '2026-09-24',
+    checkOut: '2026-09-27',
+    nights: 3,
+    amount: 23500,
+    baseAmount: 20000,
+    taxAmount: 3500,
+    status: 'Checked-In',
+    actualCheckInTime: '24 Sep 2026, 11:15 AM',
+    keyCardNumber: 'KEY-4412',
+    keysIssued: 2,
+    paymentMethod: 'Credit Card (Visa)',
+    avatar: 'AS'
+  },
+  {
+    id: 'BK-1003',
+    guestName: 'Vikram Malhotra',
+    guestEmail: 'vikram.m@example.com',
+    guestMobile: '+91 99887 76655',
+    idProofType: 'Driving License',
+    idProofNumber: 'DL-091240192',
+    roomNumber: '301',
+    roomType: 'Executive Room',
+    checkIn: '2026-09-25',
+    checkOut: '2026-09-28',
+    nights: 3,
+    amount: 42000,
+    baseAmount: 36000,
+    taxAmount: 6000,
+    status: 'Confirmed',
+    paymentMethod: 'Corporate Transfer',
+    avatar: 'VM'
+  }
+];
+
 export const HotelProvider = ({ children }) => {
   const [rooms, setRooms] = useState([]);
   const [guests, setGuests] = useState([]);
   const [bookings, setBookings] = useState(() => {
     try {
-      const saved = localStorage.getItem('hotel_app_bookings_v4');
-      return saved ? JSON.parse(saved) : [];
+      const saved = localStorage.getItem('hotel_app_bookings_v5');
+      return saved ? JSON.parse(saved) : initialSeedBookings;
     } catch {
-      return [];
+      return initialSeedBookings;
     }
   });
 
@@ -24,7 +90,7 @@ export const HotelProvider = ({ children }) => {
     {
       id: 'notif-1',
       title: 'New Check-In Expected',
-      message: 'Guest Rajesh Verma expected for Check-In today at 02:00 PM.',
+      message: 'Guest Vikram Malhotra expected for Check-In today at 02:00 PM.',
       time: '10 mins ago',
       type: 'booking',
       read: false
@@ -80,7 +146,7 @@ export const HotelProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch Rooms & Guests on Mount
+  // Fetch Rooms & Guests on Mount and auto-sync with active bookings
   const fetchAllData = async () => {
     setIsLoading(true);
     setError(null);
@@ -89,7 +155,37 @@ export const HotelProvider = ({ children }) => {
         roomApi.getRooms(),
         guestApi.getGuests()
       ]);
-      setRooms(roomsRes.data);
+
+      const loadedRooms = roomsRes.data;
+      const syncedRooms = loadedRooms.map((room) => {
+        const activeBooking = bookings.find(
+          (b) =>
+            b.roomNumber?.toString().trim() === room.number?.toString().trim() &&
+            (b.status === 'Confirmed' || b.status === 'Checked-In')
+        );
+        if (activeBooking) {
+          return {
+            ...room,
+            status: 'Occupied',
+            currentOccupant: {
+              bookingId: activeBooking.id,
+              guestName: activeBooking.guestName,
+              email: activeBooking.guestEmail,
+              phone: activeBooking.guestMobile || '+91 98765 43210',
+              checkIn: activeBooking.checkIn,
+              checkOut: activeBooking.checkOut,
+              paymentStatus: `Confirmed (${activeBooking.paymentMethod || 'Card/UPI'})`
+            }
+          };
+        }
+        return {
+          ...room,
+          status: room.status === 'Maintenance' ? 'Maintenance' : 'Available',
+          currentOccupant: null
+        };
+      });
+
+      setRooms(syncedRooms);
       setGuests(guestsRes.data);
     } catch {
       setError('Failed to fetch data from API server. Please try again.');
@@ -107,6 +203,13 @@ export const HotelProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('hotel_app_bookings_v4', JSON.stringify(bookings));
   }, [bookings]);
+
+  // Persist rooms to localStorage for real-time room management sync
+  useEffect(() => {
+    if (rooms.length > 0) {
+      localStorage.setItem('hotel_app_rooms_v6', JSON.stringify(rooms));
+    }
+  }, [rooms]);
 
   // Derived Real-Time KPI Metrics
   const totalRooms = rooms.length;
@@ -246,7 +349,7 @@ export const HotelProvider = ({ children }) => {
 
     return bookings.some((b) => {
       if (b.id === excludeBookingId) return false;
-      if (b.roomNumber !== roomNumber) return false;
+      if (b.roomNumber?.toString().trim() !== roomNumber?.toString().trim()) return false;
       if (b.status === 'Cancelled' || b.status === 'Checked-Out') return false;
 
       const existingIn = new Date(b.checkIn);
@@ -300,10 +403,25 @@ export const HotelProvider = ({ children }) => {
 
     setBookings((prev) => [newBooking, ...prev]);
 
-    // Update Room status to Occupied
+    // Update Room status to Occupied in Room Management
     if (newBooking.status !== 'Cancelled') {
       setRooms((prev) =>
-        prev.map((r) => (r.number === rNum ? { ...r, status: 'Occupied' } : r))
+        prev.map((r) =>
+          r.number?.toString().trim() === rNum?.toString().trim()
+            ? {
+                ...r,
+                status: 'Occupied',
+                currentOccupant: {
+                  bookingId: newBooking.id,
+                  guestName: newBooking.guestName,
+                  email: newBooking.guestEmail,
+                  phone: newBooking.guestMobile || '+91 98765 43210',
+                  checkIn: newBooking.checkIn,
+                  checkOut: newBooking.checkOut
+                }
+              }
+            : r
+        )
       );
     }
 
@@ -313,7 +431,7 @@ export const HotelProvider = ({ children }) => {
       type: 'booking'
     });
 
-    toast.success(`Booking ${newBooking.id} created for ${newBooking.guestName} in Room ${rNum}!`);
+    toast.success(`Booking ${newBooking.id} created for ${newBooking.guestName} in Room ${rNum}! Room marked as Occupied.`);
     return true;
   };
 
@@ -327,7 +445,11 @@ export const HotelProvider = ({ children }) => {
     );
 
     setRooms((prev) =>
-      prev.map((r) => (r.number === booking.roomNumber ? { ...r, status: 'Available' } : r))
+      prev.map((r) =>
+        r.number?.toString().trim() === booking.roomNumber?.toString().trim()
+          ? { ...r, status: 'Available', currentOccupant: null }
+          : r
+      )
     );
 
     addNotification({
@@ -339,48 +461,177 @@ export const HotelProvider = ({ children }) => {
     toast.info(`Booking ${booking.id} cancelled. Room ${booking.roomNumber} is now Available.`);
   };
 
-  // Action: Check In Booking
-  const checkInBooking = (bookingId) => {
+  // Action: Check In Booking (with real-time metadata)
+  const checkInBooking = (bookingId, checkInData = {}) => {
     const booking = bookings.find((b) => b.id === bookingId);
     if (!booking) return;
 
+    const timestamp = checkInData.checkInTime || new Date().toLocaleString('en-IN', {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    });
+
+    const keyCard = checkInData.keyCardNumber || `KEY-${Math.floor(1000 + Math.random() * 9000)}`;
+    const keysIssued = checkInData.keysIssued || 2;
+
     setBookings((prev) =>
-      prev.map((b) => (b.id === bookingId ? { ...b, status: 'Checked-In' } : b))
+      prev.map((b) =>
+        b.id === bookingId
+          ? {
+              ...b,
+              status: 'Checked-In',
+              actualCheckInTime: b.actualCheckInTime || timestamp,
+              keyCardNumber: keyCard,
+              keysIssued: keysIssued,
+              checkInNotes: checkInData.notes || 'Guest Checked-In successfully at Front Desk',
+              idVerified: checkInData.idVerified !== undefined ? checkInData.idVerified : true
+            }
+          : b
+      )
     );
 
     setRooms((prev) =>
-      prev.map((r) => (r.number === booking.roomNumber ? { ...r, status: 'Occupied' } : r))
+      prev.map((r) =>
+        r.number?.toString().trim() === booking.roomNumber?.toString().trim()
+          ? {
+              ...r,
+              status: 'Occupied',
+              currentOccupant: {
+                bookingId: booking.id,
+                guestName: booking.guestName,
+                email: booking.guestEmail,
+                phone: booking.guestMobile || '+91 98765 43210',
+                checkIn: booking.checkIn,
+                checkOut: booking.checkOut
+              }
+            }
+          : r
+      )
     );
 
     addNotification({
       title: 'Guest Checked In',
-      message: `Guest ${booking.guestName} checked into Room ${booking.roomNumber}.`,
+      message: `Guest ${booking.guestName} checked into Room ${booking.roomNumber} (Key: ${keyCard}) at ${timestamp}.`,
       type: 'booking'
     });
 
-    toast.success(`Guest ${booking.guestName} checked into Room ${booking.roomNumber}!`);
+    toast.success(`Guest ${booking.guestName} checked into Room ${booking.roomNumber}! Key Card ${keyCard} issued.`);
   };
 
-  // Action: Check Out Booking
-  const checkOutBooking = (bookingId) => {
+  // Action: Check Out Booking (with billing settlement & room transition)
+  const checkOutBooking = (bookingId, checkOutData = {}) => {
     const booking = bookings.find((b) => b.id === bookingId);
     if (!booking) return;
 
+    const timestamp = checkOutData.checkOutTime || new Date().toLocaleString('en-IN', {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    });
+
+    const roomNextStatus = checkOutData.roomNextStatus || 'Available';
+    const extraCharges = Number(checkOutData.extraCharges) || 0;
+    const finalAmount = (Number(booking.amount) || 0) + extraCharges;
+
     setBookings((prev) =>
-      prev.map((b) => (b.id === bookingId ? { ...b, status: 'Checked-Out' } : b))
+      prev.map((b) =>
+        b.id === bookingId
+          ? {
+              ...b,
+              status: 'Checked-Out',
+              actualCheckOutTime: b.actualCheckOutTime || timestamp,
+              extraCharges: extraCharges,
+              finalAmount: finalAmount,
+              keysReturned: checkOutData.keysReturned !== undefined ? checkOutData.keysReturned : true,
+              checkOutNotes: checkOutData.notes || 'Guest Checked-Out and Folio settled'
+            }
+          : b
+      )
     );
 
     setRooms((prev) =>
-      prev.map((r) => (r.number === booking.roomNumber ? { ...r, status: 'Available' } : r))
+      prev.map((r) =>
+        r.number?.toString().trim() === booking.roomNumber?.toString().trim()
+          ? { ...r, status: roomNextStatus, currentOccupant: null }
+          : r
+      )
     );
 
     addNotification({
       title: 'Guest Checked Out',
-      message: `Guest ${booking.guestName} checked out from Room ${booking.roomNumber}.`,
+      message: `Guest ${booking.guestName} checked out from Room ${booking.roomNumber} at ${timestamp}. Room status set to ${roomNextStatus}.`,
       type: 'booking'
     });
 
-    toast.info(`Guest ${booking.guestName} checked out. Room ${booking.roomNumber} is now Available.`);
+    toast.info(`Guest ${booking.guestName} checked out. Room ${booking.roomNumber} is now ${roomNextStatus}.`);
+  };
+
+  // Action: Explicitly Update Booking Status
+  const updateBookingStatus = (bookingId, newStatus) => {
+    const booking = bookings.find((b) => b.id === bookingId);
+    if (!booking) return;
+
+    const timestamp = new Date().toLocaleString('en-IN', {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    });
+
+    setBookings((prev) =>
+      prev.map((b) => {
+        if (b.id !== bookingId) return b;
+        const updated = { ...b, status: newStatus };
+        if (newStatus === 'Checked-In' && !b.actualCheckInTime) {
+          updated.actualCheckInTime = timestamp;
+        }
+        if (newStatus === 'Checked-Out' && !b.actualCheckOutTime) {
+          updated.actualCheckOutTime = timestamp;
+        }
+        return updated;
+      })
+    );
+
+    // Sync room status
+    if (newStatus === 'Checked-In' || newStatus === 'Confirmed') {
+      setRooms((prev) =>
+        prev.map((r) =>
+          r.number?.toString().trim() === booking.roomNumber?.toString().trim()
+            ? {
+                ...r,
+                status: 'Occupied',
+                currentOccupant: {
+                  bookingId: booking.id,
+                  guestName: booking.guestName,
+                  email: booking.guestEmail,
+                  phone: booking.guestMobile || '+91 98765 43210',
+                  checkIn: booking.checkIn,
+                  checkOut: booking.checkOut
+                }
+              }
+            : r
+        )
+      );
+    } else if (newStatus === 'Checked-Out' || newStatus === 'Cancelled') {
+      setRooms((prev) =>
+        prev.map((r) =>
+          r.number?.toString().trim() === booking.roomNumber?.toString().trim()
+            ? { ...r, status: 'Available', currentOccupant: null }
+            : r
+        )
+      );
+    }
+
+    toast.success(`Booking ${bookingId} status updated to ${newStatus}.`);
+  };
+
+  // Action: Explicitly Update Room Availability
+  const updateRoomAvailability = (roomNumber, newStatus) => {
+    setRooms((prev) =>
+      prev.map((r) =>
+        r.number?.toString().trim() === roomNumber?.toString().trim()
+          ? { ...r, status: newStatus }
+          : r
+      )
+    );
+    toast.info(`Room ${roomNumber} availability updated to ${newStatus}.`);
   };
 
   // Reset State to Clean Baseline
@@ -438,6 +689,8 @@ export const HotelProvider = ({ children }) => {
         addBooking,
         checkInBooking,
         checkOutBooking,
+        updateBookingStatus,
+        updateRoomAvailability,
         cancelBooking,
         isRoomDoubleBooked,
         resetToCleanState
