@@ -6,6 +6,7 @@ import CheckOutModal from '../components/CheckOutModal';
 import BookingDetailsModal from '../components/BookingDetailsModal';
 import CancelBookingModal from '../components/CancelBookingModal';
 import { useHotel } from '../context/HotelContext';
+import { useAuth } from '../context/AuthContext';
 import {
   CalendarCheck,
   Search,
@@ -29,8 +30,6 @@ import {
   Moon,
   X,
   History,
-  Key,
-  Calendar,
   Eye,
   Filter
 } from 'lucide-react';
@@ -39,7 +38,8 @@ import { toast } from 'react-toastify';
 const ITEMS_PER_PAGE = 6;
 
 const BookingsList = () => {
-  const { bookings, checkInBooking, checkOutBooking, updateBookingStatus, cancelBooking, kpi } = useHotel();
+  const { currentUser } = useAuth();
+  const { bookings, checkInBooking, checkOutBooking, updateBookingStatus, cancelBooking } = useHotel();
 
   // Navigation Sub-tabs: 'all', 'check-in', 'completed', 'cancelled'
   const [activeTab, setActiveTab] = useState('all');
@@ -100,6 +100,13 @@ const BookingsList = () => {
   // Filtered Bookings Computation
   const filteredBookings = useMemo(() => {
     return bookings.filter((b) => {
+      // 0. Guest Role Isolation: Guests ONLY see their own bookings!
+      if (currentUser?.role === 'Guest') {
+        const matchesEmail = currentUser?.email && b.guestEmail?.toLowerCase() === currentUser.email.toLowerCase();
+        const matchesName = currentUser?.name && b.guestName?.toLowerCase() === currentUser.name.toLowerCase();
+        if (!matchesEmail && !matchesName) return false;
+      }
+
       // 1. Search filter across multiple fields
       const query = searchTerm.toLowerCase().trim();
       const matchesSearch =
@@ -145,7 +152,7 @@ const BookingsList = () => {
 
       return matchesSearch && matchesTab && matchesStatus && matchesDatePreset && matchesDateRange;
     });
-  }, [bookings, activeTab, searchTerm, statusFilter, datePresetFilter, startDateFilter, endDateFilter]);
+  }, [bookings, currentUser, activeTab, searchTerm, statusFilter, datePresetFilter, startDateFilter, endDateFilter]);
 
   // Pagination Calculation
   const totalPages = Math.ceil(filteredBookings.length / ITEMS_PER_PAGE) || 1;

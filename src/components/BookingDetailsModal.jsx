@@ -11,7 +11,6 @@ import {
   Key,
   Receipt,
   X,
-  Printer,
   CheckCircle,
   AlertCircle,
   XCircle,

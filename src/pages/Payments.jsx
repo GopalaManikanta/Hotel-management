@@ -2,29 +2,24 @@ import { useState, useMemo } from 'react';
 import Layout from '../components/Layout';
 import InvoiceModal from '../components/InvoiceModal';
 import { useHotel } from '../context/HotelContext';
+import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import {
   CreditCard,
   Search,
   CheckCircle,
   Clock,
-  AlertCircle,
   Download,
   FileText,
-  Printer,
   RefreshCcw,
   Sparkles,
-  DollarSign,
   TrendingUp,
   RotateCcw,
-  Calendar,
   BedDouble,
-  User,
   List,
   LayoutGrid,
   ChevronLeft,
   ChevronRight,
-  Receipt,
   QrCode,
   Wallet
 } from 'lucide-react';
@@ -32,6 +27,7 @@ import {
 const ITEMS_PER_PAGE = 6;
 
 const Payments = () => {
+  const { currentUser } = useAuth();
   const { bookings, updatePaymentStatus } = useHotel();
 
   // Filter, Search, View Mode, Pagination States
@@ -55,7 +51,15 @@ const Payments = () => {
 
   // Derive Payments Dataset from Bookings Ledger with Transaction IDs & Invoice Numbers
   const paymentsList = useMemo(() => {
-    return bookings.map((b, idx) => {
+    let sourceBookings = bookings;
+    if (currentUser?.role === 'Guest') {
+      sourceBookings = bookings.filter(
+        (b) =>
+          (currentUser?.email && b.guestEmail?.toLowerCase() === currentUser.email.toLowerCase()) ||
+          (currentUser?.name && b.guestName?.toLowerCase() === currentUser.name.toLowerCase())
+      );
+    }
+    return sourceBookings.map((b, idx) => {
       const isPaid = b.status === 'Checked-In' || b.status === 'Checked-Out' || b.status === 'Confirmed';
       const paymentStatus = b.paymentStatus || (isPaid ? 'Paid in Full' : b.status === 'Cancelled' ? 'Refunded' : 'Pending Settlement');
       const transactionId = b.transactionId || `TXN-${88000 + idx * 147}`;
@@ -72,7 +76,7 @@ const Payments = () => {
         paymentDate
       };
     });
-  }, [bookings]);
+  }, [bookings, currentUser]);
 
   // Derived KPI Metrics
   const totalRevenue = useMemo(() => {
@@ -102,7 +106,6 @@ const Payments = () => {
   // Method Breakdown Counts
   const upiCount = paymentsList.filter((p) => p.paymentMethod.toLowerCase().includes('upi')).length;
   const cardCount = paymentsList.filter((p) => p.paymentMethod.toLowerCase().includes('card')).length;
-  const cashCount = paymentsList.filter((p) => p.paymentMethod.toLowerCase().includes('cash')).length;
 
   // Filtered Payments Calculation
   const filteredPayments = useMemo(() => {

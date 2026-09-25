@@ -4,6 +4,7 @@ import Layout from '../components/Layout';
 import GuestFormModal from '../components/GuestFormModal';
 import DeleteGuestModal from '../components/DeleteGuestModal';
 import { useHotel } from '../context/HotelContext';
+import { useAuth } from '../context/AuthContext';
 import {
   Users,
   Search,
@@ -28,6 +29,7 @@ import {
 const ITEMS_PER_PAGE = 6;
 
 const GuestList = () => {
+  const { currentUser } = useAuth();
   const { guests, isLoading, addGuest, editGuest, deleteGuest } = useHotel();
 
   // Search, Filter, Pagination, View Mode States
@@ -52,6 +54,13 @@ const GuestList = () => {
   // Filtered Guests Calculation
   const filteredGuests = useMemo(() => {
     return guests.filter((g) => {
+      // Guest Role Identity Isolation
+      if (currentUser?.role === 'Guest') {
+        const matchesEmail = currentUser?.email && g.email?.toLowerCase() === currentUser.email.toLowerCase();
+        const matchesName = currentUser?.name && g.fullName?.toLowerCase() === currentUser.name.toLowerCase();
+        if (!matchesEmail && !matchesName) return false;
+      }
+
       const query = searchTerm.toLowerCase().trim();
       const matchesSearch =
         !query ||
@@ -66,7 +75,7 @@ const GuestList = () => {
 
       return matchesSearch && matchesStatus && matchesNationality;
     });
-  }, [guests, searchTerm, statusFilter, nationalityFilter]);
+  }, [guests, currentUser, searchTerm, statusFilter, nationalityFilter]);
 
   // Pagination Calculation
   const totalPages = Math.ceil(filteredGuests.length / ITEMS_PER_PAGE) || 1;

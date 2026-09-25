@@ -1,8 +1,18 @@
 import { Calendar, BedDouble, UserCheck, Clock, CheckCircle, AlertCircle, LogIn, LogOut, PlusCircle } from 'lucide-react';
 import { useHotel } from '../context/HotelContext';
+import { useAuth } from '../context/AuthContext';
 
-const RecentBookingsTable = ({ onNewReservation }) => {
+const RecentBookingsTable = ({ onNewReservation, onCheckInClick, onCheckOutClick }) => {
+  const { currentUser } = useAuth();
   const { bookings, checkInBooking, checkOutBooking } = useHotel();
+
+  const userBookings = currentUser?.role === 'Guest'
+    ? bookings.filter(
+        (b) =>
+          (currentUser?.email && b.guestEmail?.toLowerCase() === currentUser.email.toLowerCase()) ||
+          (currentUser?.name && b.guestName?.toLowerCase() === currentUser.name.toLowerCase())
+      )
+    : bookings;
 
   const formatINR = (val) => {
     return new Intl.NumberFormat('en-IN', {
@@ -60,7 +70,7 @@ const RecentBookingsTable = ({ onNewReservation }) => {
               <h3 className="font-extrabold text-slate-900 text-base flex items-center gap-2">
                 Recent Guest Reservations
                 <span className="text-[10px] bg-white text-indigo-700 px-2.5 py-0.5 rounded-full border border-slate-200 shadow-xs font-bold">
-                  {bookings.length} Active
+                  {userBookings.length} Active
                 </span>
               </h3>
               <p className="text-xs text-slate-500">Live guest bookings with real-time check-in/out triggers</p>
@@ -69,7 +79,7 @@ const RecentBookingsTable = ({ onNewReservation }) => {
         </div>
 
         {/* Conditional Empty State or Table */}
-        {bookings.length === 0 ? (
+        {userBookings.length === 0 ? (
           <div className="py-12 text-center flex flex-col items-center justify-center bg-white rounded-2xl border border-dashed border-slate-300 p-6 shadow-xs">
             <div className="p-4 rounded-2xl bg-white text-indigo-600 border border-slate-200 mb-3 shadow-xs">
               <Calendar className="w-8 h-8" />
@@ -101,7 +111,7 @@ const RecentBookingsTable = ({ onNewReservation }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-800 bg-white">
-                {bookings.map((b) => (
+                {userBookings.map((b) => (
                   <tr key={b.id} className="hover:bg-slate-50 transition bg-white">
                     {/* Guest Info */}
                     <td className="py-3.5">
@@ -146,7 +156,7 @@ const RecentBookingsTable = ({ onNewReservation }) => {
                       {b.status === 'Confirmed' || b.status === 'Pending' ? (
                         <button
                           type="button"
-                          onClick={() => checkInBooking(b.id)}
+                          onClick={() => onCheckInClick ? onCheckInClick(b) : checkInBooking(b.id)}
                           className="inline-flex items-center gap-1 bg-white hover:bg-emerald-50 text-emerald-700 border border-slate-200 px-2.5 py-1 rounded-lg font-bold text-[11px] transition cursor-pointer shadow-xs"
                         >
                           <LogIn className="w-3 h-3 text-emerald-600" /> Check-In
@@ -154,7 +164,7 @@ const RecentBookingsTable = ({ onNewReservation }) => {
                       ) : b.status === 'Checked-In' ? (
                         <button
                           type="button"
-                          onClick={() => checkOutBooking(b.id)}
+                          onClick={() => onCheckOutClick ? onCheckOutClick(b) : checkOutBooking(b.id)}
                           className="inline-flex items-center gap-1 bg-white hover:bg-rose-50 text-rose-700 border border-slate-200 px-2.5 py-1 rounded-lg font-bold text-[11px] transition cursor-pointer shadow-xs"
                         >
                           <LogOut className="w-3 h-3 text-rose-600" /> Check-Out

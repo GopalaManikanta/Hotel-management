@@ -99,7 +99,7 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
       name: 'My Stay Portal',
       path: '/dashboard',
       icon: LayoutDashboard,
-      badge: 'Live Portal'
+      badge: null
     },
     {
       name: 'Browse Rooms & Suites',
@@ -215,24 +215,6 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
 
       {/* Bottom Status & Profile Footer */}
       <div>
-        {/* Occupancy Meter (when expanded) */}
-        {!isCollapsed && (
-          <div className="mx-3 mb-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80 shadow-inner">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-slate-700 mb-1.5">
-              <span className="flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-indigo-600" /> Live Occupancy
-              </span>
-              <span className="text-indigo-600 font-bold">{kpi.occupancyRate || 0}%</span>
-            </div>
-            <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
-              <div
-                className="bg-gradient-to-r from-indigo-500 to-indigo-600 h-full rounded-full transition-all duration-500"
-                style={{ width: `${kpi.occupancyRate || 0}%` }}
-              />
-            </div>
-          </div>
-        )}
-
         {/* User Profile Card */}
         <div className={`p-3 border-t border-slate-200 bg-slate-50/60 ${isCollapsed ? 'text-center' : ''}`}>
           <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>

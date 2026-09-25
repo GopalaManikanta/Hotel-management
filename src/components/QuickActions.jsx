@@ -2,7 +2,7 @@ import { useHotel } from '../context/HotelContext';
 import { toast } from 'react-toastify';
 import { PlusCircle, LogIn, LogOut, Wrench, Zap } from 'lucide-react';
 
-const QuickActions = ({ onNewReservation }) => {
+const QuickActions = ({ onNewReservation, onCheckInClick, onCheckOutClick }) => {
   const { bookings, checkInBooking, checkOutBooking, kpi } = useHotel();
 
   const handleNewReservation = () => {
@@ -16,7 +16,11 @@ const QuickActions = ({ onNewReservation }) => {
   const handleExpressCheckIn = () => {
     const pending = bookings.find((b) => b.status === 'Confirmed' || b.status === 'Pending');
     if (pending) {
-      checkInBooking(pending.id);
+      if (onCheckInClick) {
+        onCheckInClick(pending);
+      } else {
+        checkInBooking(pending.id);
+      }
     } else {
       toast.info('No pending reservations waiting for check-in right now.');
     }
@@ -25,7 +29,11 @@ const QuickActions = ({ onNewReservation }) => {
   const handleExpressCheckOut = () => {
     const checkedIn = bookings.find((b) => b.status === 'Checked-In');
     if (checkedIn) {
-      checkOutBooking(checkedIn.id);
+      if (onCheckOutClick) {
+        onCheckOutClick(checkedIn);
+      } else {
+        checkOutBooking(checkedIn.id);
+      }
     } else {
       toast.info('No guests currently checked in to process checkout.');
     }

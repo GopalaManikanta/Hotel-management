@@ -11,8 +11,6 @@ import {
   CheckCircle,
   CreditCard,
   ShieldCheck,
-  Sparkles,
-  Receipt,
   Phone,
   Mail,
   Moon
@@ -20,9 +18,9 @@ import {
 import { toast } from 'react-toastify';
 
 const InvoiceModal = ({ isOpen, onClose, booking }) => {
-  if (!isOpen || !booking) return null;
-
   const [isDownloading, setIsDownloading] = useState(false);
+
+  if (!isOpen || !booking) return null;
 
   const formatINR = (val) => {
     return new Intl.NumberFormat('en-IN', {

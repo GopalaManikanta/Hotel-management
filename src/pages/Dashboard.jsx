@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import StatCard from '../components/StatCard';
 import RevenueSummary from '../components/RevenueSummary';
 import RecentBookingsTable from '../components/RecentBookingsTable';
 import QuickActions from '../components/QuickActions';
 import BookingFormModal from '../components/BookingFormModal';
+import CheckInModal from '../components/CheckInModal';
+import CheckOutModal from '../components/CheckOutModal';
 import GuestPortalHub from '../components/GuestPortalHub';
 import { useHotel } from '../context/HotelContext';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 
 import {
   Building2,
@@ -18,15 +21,25 @@ import {
   LogOut,
   BookmarkCheck,
   Sparkles,
-  Shield,
-  User,
-  PlusCircle
+  PlusCircle,
+  Clock,
+  Activity
 } from 'lucide-react';
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
-  const { kpi, revenue } = useHotel();
+  const { kpi, revenue, checkInBooking, checkOutBooking } = useHotel();
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [checkInModalBooking, setCheckInModalBooking] = useState(null);
+  const [checkOutModalBooking, setCheckOutModalBooking] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const isGuestUser = currentUser?.role === 'Guest';
 
@@ -34,47 +47,80 @@ const Dashboard = () => {
     setIsBookingModalOpen(true);
   };
 
+  const handleConfirmCheckIn = (bookingId, details) => {
+    checkInBooking(bookingId, details);
+    toast.success(`✅ Check-In completed! Guest ${checkInModalBooking?.guestName} assigned to Room ${checkInModalBooking?.roomNumber}.`);
+    setCheckInModalBooking(null);
+  };
+
+  const handleConfirmCheckOut = (bookingId, details) => {
+    checkOutBooking(bookingId, details);
+    toast.success(`✅ Check-Out completed! Guest ${checkOutModalBooking?.guestName} released Room ${checkOutModalBooking?.roomNumber}.`);
+    setCheckOutModalBooking(null);
+  };
+
+  const occupancyRate = kpi.totalRooms > 0 ? Math.round((kpi.occupiedRooms / kpi.totalRooms) * 100) : 0;
+
   return (
     <Layout>
       {isGuestUser ? (
         <GuestPortalHub />
       ) : (
         <div className="space-y-8 bg-white min-h-full">
-          {/* Top Header & User Welcome Banner */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6 bg-white">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-indigo-700 text-xs font-bold mb-2 shadow-xs">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                Celestia Grand Luxury Suite
+          {/* Advanced Top Luxury Header & Welcome Deck */}
+          <div className="bg-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2 relative z-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-indigo-300 text-xs font-bold shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                Celestia Grand 5-Star Luxury Suite Control Desk
               </div>
-              <h1 className="text-3xl font-black tracking-tight text-slate-900">
-                Property Dashboard & Desk
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-3">
+                Property Command Center
               </h1>
-              <p className="text-slate-500 text-sm mt-1">
-                Welcome back, <span className="text-indigo-600 font-bold">{currentUser?.name}</span>! System operational in real-time.
+              <p className="text-slate-300 text-xs sm:text-sm max-w-xl">
+                Welcome back, <strong className="text-white font-bold">{currentUser?.name || 'Administrator'}</strong>. Real-time front desk operations & inventory management.
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 relative z-10 shrink-0">
+              {/* Ticking Seconds Clock */}
+              <div className="bg-white/10 backdrop-blur-md border border-white/15 px-4 py-2.5 rounded-2xl flex items-center gap-2.5 text-white">
+                <Clock className="w-4 h-4 text-indigo-300 animate-spin-slow" />
+                <div>
+                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">IST Standard Time</div>
+                  <div className="font-mono font-black text-sm text-white tracking-wider">{currentTime}</div>
+                </div>
+              </div>
+
+              {/* Occupancy Meter Pill */}
+              <div className="bg-white/10 backdrop-blur-md border border-white/15 px-4 py-2.5 rounded-2xl flex items-center gap-2.5 text-white">
+                <Activity className="w-4 h-4 text-emerald-400" />
+                <div>
+                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Occupancy Index</div>
+                  <div className="font-black text-sm text-emerald-400 flex items-center gap-1">
+                    {occupancyRate}% <span className="text-[10px] text-slate-300 font-normal">({kpi.occupiedRooms}/{kpi.totalRooms})</span>
+                  </div>
+                </div>
+              </div>
+
               <button
                 type="button"
                 onClick={handleNewReservationClick}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold px-4 py-2 rounded-2xl flex items-center gap-1.5 text-xs shadow-sm transition cursor-pointer"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold px-5 py-3 rounded-2xl flex items-center justify-center gap-2 text-xs shadow-lg hover:shadow-indigo-500/30 transition-all cursor-pointer"
               >
-                <PlusCircle className="w-4 h-4 font-bold" />
+                <PlusCircle className="w-4.5 h-4.5" />
                 New Reservation
               </button>
-
-              <div className="bg-white border border-slate-200 px-3 py-2 rounded-2xl flex items-center gap-2 text-xs text-slate-700 shadow-xs">
-                {currentUser?.role === 'Admin' ? <Shield className="w-4 h-4 text-indigo-600" /> : <User className="w-4 h-4 text-indigo-600" />}
-                <span>Role: <strong className="text-slate-900">{currentUser?.role || 'Staff'}</strong></span>
-              </div>
             </div>
           </div>
 
           {/* 1. Quick Actions */}
           <section className="bg-white">
-            <QuickActions onNewReservation={handleNewReservationClick} />
+            <QuickActions
+              onNewReservation={handleNewReservationClick}
+              onCheckInClick={(b) => setCheckInModalBooking(b)}
+              onCheckOutClick={(b) => setCheckOutModalBooking(b)}
+            />
           </section>
 
           {/* 2. KPI Metrics Grid */}
@@ -175,7 +221,11 @@ const Dashboard = () => {
 
             {/* Recent Bookings Table (7 cols) */}
             <div className="lg:col-span-7 bg-white">
-              <RecentBookingsTable onNewReservation={handleNewReservationClick} />
+              <RecentBookingsTable
+                onNewReservation={handleNewReservationClick}
+                onCheckInClick={(b) => setCheckInModalBooking(b)}
+                onCheckOutClick={(b) => setCheckOutModalBooking(b)}
+              />
             </div>
           </section>
 
@@ -184,6 +234,26 @@ const Dashboard = () => {
             isOpen={isBookingModalOpen}
             onClose={() => setIsBookingModalOpen(false)}
           />
+
+          {/* Check-In Modal with Guest Specs */}
+          {checkInModalBooking && (
+            <CheckInModal
+              isOpen={!!checkInModalBooking}
+              onClose={() => setCheckInModalBooking(null)}
+              booking={checkInModalBooking}
+              onConfirmCheckIn={handleConfirmCheckIn}
+            />
+          )}
+
+          {/* Check-Out Modal with Guest Specs */}
+          {checkOutModalBooking && (
+            <CheckOutModal
+              isOpen={!!checkOutModalBooking}
+              onClose={() => setCheckOutModalBooking(null)}
+              booking={checkOutModalBooking}
+              onConfirmCheckOut={handleConfirmCheckOut}
+            />
+          )}
         </div>
       )}
     </Layout>

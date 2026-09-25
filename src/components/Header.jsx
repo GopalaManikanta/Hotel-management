@@ -47,12 +47,13 @@ const Header = ({ onMobileMenuClick }) => {
           month: 'short',
           day: 'numeric',
           hour: '2-digit',
-          minute: '2-digit'
+          minute: '2-digit',
+          second: '2-digit'
         })
       );
     };
     updateTime();
-    const interval = setInterval(updateTime, 60000);
+    const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -120,12 +121,13 @@ const Header = ({ onMobileMenuClick }) => {
         </div>
       </div>
 
-      {/* Right: Date/Time, Notifications & User Info */}
+      {/* Right: Live Clock, Notifications & User Info */}
       <div className="flex items-center gap-3">
-        {/* Date Time Badge */}
-        <div className="hidden lg:flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-xs text-slate-600">
-          <Calendar className="w-3.5 h-3.5 text-indigo-600" />
-          <span className="font-semibold text-[11px] text-slate-700">{currentDateTime}</span>
+
+        {/* Live Date Time Badge with Ticking Seconds */}
+        <div className="hidden lg:flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-xs text-slate-600 font-mono font-semibold">
+          <Calendar className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+          <span className="text-[11px] text-slate-800 font-bold">{currentDateTime}</span>
         </div>
 
         {/* Notification Bell with Interactive Dropdown */}

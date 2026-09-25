@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { roomApi } from '../services/roomApi';
 import { guestApi } from '../services/guestApi';
 import { toast } from 'react-toastify';
@@ -181,7 +181,7 @@ export const HotelProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   // Fetch Rooms & Guests on Mount and auto-sync with active bookings
-  const fetchAllData = async () => {
+  const fetchAllData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -227,11 +227,11 @@ export const HotelProvider = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [bookings]);
 
   useEffect(() => {
     fetchAllData();
-  }, []);
+  }, [fetchAllData]);
 
   // Persist bookings to localStorage
   useEffect(() => {

@@ -6,20 +6,17 @@ import {
   Wifi,
   Sparkles,
   BedDouble,
-  Calendar,
   Clock,
   CheckCircle2,
   Coffee,
-  Utensils,
   Receipt,
   LogOut,
-  ShieldCheck,
   Zap,
   PhoneCall,
   BellRing,
-  Smartphone,
   PlusCircle,
-  Copy
+  Copy,
+  Car
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import InvoiceModal from './InvoiceModal';
@@ -27,7 +24,7 @@ import BookingFormModal from './BookingFormModal';
 
 const GuestPortalHub = () => {
   const { currentUser } = useAuth();
-  const { bookings, rooms, checkOutBooking, addNotification } = useHotel();
+  const { bookings, checkOutBooking, addNotification } = useHotel();
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [isDND, setIsDND] = useState(false);
   const [selectedInvoiceBooking, setSelectedInvoiceBooking] = useState(null);
@@ -37,14 +34,14 @@ const GuestPortalHub = () => {
   const activeBooking =
     bookings.find(
       (b) =>
-        (b.guestEmail?.toLowerCase() === currentUser?.email?.toLowerCase() ||
-          b.guestName?.toLowerCase() === currentUser?.name?.toLowerCase()) &&
+        ((currentUser?.email && b.guestEmail?.toLowerCase() === currentUser.email.toLowerCase()) ||
+          (currentUser?.name && b.guestName?.toLowerCase() === currentUser.name.toLowerCase())) &&
         (b.status === 'Checked-In' || b.status === 'Confirmed')
     ) ||
     bookings.find(
       (b) =>
-        b.guestEmail?.toLowerCase() === currentUser?.email?.toLowerCase() ||
-        b.guestName?.toLowerCase() === currentUser?.name?.toLowerCase()
+        (currentUser?.email && b.guestEmail?.toLowerCase() === currentUser.email.toLowerCase()) ||
+        (currentUser?.name && b.guestName?.toLowerCase() === currentUser.name.toLowerCase())
     ) ||
     (currentUser?.email === 'guest@hotel.com'
       ? bookings.find((b) => b.guestName === 'John Doe' || b.guestEmail === 'guest@hotel.com')
@@ -209,7 +206,7 @@ const GuestPortalHub = () => {
                 <BellRing className="w-4 h-4 text-indigo-600" /> Express Room Service Requests
               </h2>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 <button
                   type="button"
                   onClick={() => handleRequestService('Fresh Towels & Toiletries')}
@@ -244,6 +241,24 @@ const GuestPortalHub = () => {
                 >
                   <PhoneCall className="w-5 h-5 mx-auto text-purple-600 group-hover:scale-110 transition-transform" />
                   <span className="block text-xs font-bold text-slate-800">Concierge</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleRequestService('Airport Transfer Shuttle')}
+                  className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 transition text-center space-y-1.5 cursor-pointer group"
+                >
+                  <Car className="w-5 h-5 mx-auto text-sky-600 group-hover:scale-110 transition-transform" />
+                  <span className="block text-xs font-bold text-slate-800">Airport Taxi</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleRequestService('Late Check-Out (+2 Hours Extension)')}
+                  className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 transition text-center space-y-1.5 cursor-pointer group"
+                >
+                  <Clock className="w-5 h-5 mx-auto text-rose-600 group-hover:scale-110 transition-transform" />
+                  <span className="block text-xs font-bold text-slate-800">Late Check-Out</span>
                 </button>
               </div>
             </div>
