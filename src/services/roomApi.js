@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 // Enterprise Initial Seed Rooms Dataset (20 Rooms with Rich Operations Data)
 const defaultRooms = Array.from({ length: 20 }, (_, i) => {
   const roomNum = (101 + (i % 5) + Math.floor(i / 5) * 100).toString();
@@ -112,12 +110,7 @@ const saveStoredRooms = (rooms) => {
 export const roomApi = {
   // GET: Fetch all rooms
   async getRooms() {
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    try {
-      await axios.get('https://jsonplaceholder.typicode.com/todos/1', { timeout: 2000 });
-    } catch {
-      // Fallback silently
-    }
+    await new Promise((resolve) => setTimeout(resolve, 150));
     const rooms = getStoredRooms();
     return { data: rooms };
   },

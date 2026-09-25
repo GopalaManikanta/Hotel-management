@@ -32,8 +32,8 @@ const initialSeedBookings = [
   },
   {
     id: 'BK-1002',
-    guestName: 'Ananya Sharma',
-    guestEmail: 'ananya.sharma@example.com',
+    guestName: 'John Doe',
+    guestEmail: 'guest@hotel.com',
     guestMobile: '+91 91234 56789',
     idProofType: 'Passport',
     idProofNumber: 'Z-8921401',
@@ -50,7 +50,7 @@ const initialSeedBookings = [
     keyCardNumber: 'KEY-4412',
     keysIssued: 2,
     paymentMethod: 'Credit Card (Visa)',
-    avatar: 'AS'
+    avatar: 'JD'
   },
   {
     id: 'BK-1003',
@@ -73,17 +73,51 @@ const initialSeedBookings = [
   }
 ];
 
+const defaultHotelSettings = {
+  hotelName: 'Celestia Grand Luxury Hotel & Resort Suite',
+  gstin: '36AAACC1234H1Z5',
+  hsnSacCode: '996311',
+  phone: '+91 40 8899 0011',
+  email: 'frontdesk@celestiagrand.com',
+  address: 'Beachfront Drive, Jubilee Hills, Hyderabad 500033',
+  standardCheckInTime: '12:00 PM',
+  standardCheckOutTime: '11:00 AM',
+  taxRateCGST: 6,
+  taxRateSGST: 6,
+  autoKeyCardIssuance: true,
+  autoRoomCleaningStatus: true,
+  emailNotifications: true,
+  smsNotifications: true,
+  currencySymbol: '₹ (INR)'
+};
+
 export const HotelProvider = ({ children }) => {
   const [rooms, setRooms] = useState([]);
   const [guests, setGuests] = useState([]);
   const [bookings, setBookings] = useState(() => {
     try {
-      const saved = localStorage.getItem('hotel_app_bookings_v5');
+      const saved = localStorage.getItem('hotel_app_bookings_v6');
       return saved ? JSON.parse(saved) : initialSeedBookings;
     } catch {
       return initialSeedBookings;
     }
   });
+
+  const [settings, setSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('hotel_app_settings_v1');
+      return saved ? JSON.parse(saved) : defaultHotelSettings;
+    } catch {
+      return defaultHotelSettings;
+    }
+  });
+
+  const updateSettings = (newSettings) => {
+    const updated = { ...settings, ...newSettings };
+    setSettings(updated);
+    localStorage.setItem('hotel_app_settings_v1', JSON.stringify(updated));
+    toast.success('System settings saved successfully!');
+  };
 
   // System Live Notifications State
   const [notifications, setNotifications] = useState([
@@ -201,7 +235,7 @@ export const HotelProvider = ({ children }) => {
 
   // Persist bookings to localStorage
   useEffect(() => {
-    localStorage.setItem('hotel_app_bookings_v4', JSON.stringify(bookings));
+    localStorage.setItem('hotel_app_bookings_v6', JSON.stringify(bookings));
   }, [bookings]);
 
   // Persist rooms to localStorage for real-time room management sync
@@ -634,15 +668,35 @@ export const HotelProvider = ({ children }) => {
     toast.info(`Room ${roomNumber} availability updated to ${newStatus}.`);
   };
 
+  // Action: Update Payment Settlement Status
+  const updatePaymentStatus = (bookingId, newPaymentStatus) => {
+    const booking = bookings.find((b) => b.id === bookingId);
+    if (!booking) return;
+
+    setBookings((prev) =>
+      prev.map((b) =>
+        b.id === bookingId
+          ? {
+              ...b,
+              paymentStatus: newPaymentStatus,
+              status: newPaymentStatus === 'Paid in Full' && b.status === 'Pending' ? 'Confirmed' : b.status
+            }
+          : b
+      )
+    );
+
+    toast.success(`Payment status for ${bookingId} updated to ${newPaymentStatus}!`);
+  };
+
   // Reset State to Clean Baseline
   const resetToCleanState = () => {
     setRooms([]);
     setGuests([]);
     setBookings([]);
     setNotifications([]);
-    localStorage.removeItem('hotel_app_rooms_v4');
-    localStorage.removeItem('hotel_app_guests_v1');
-    localStorage.removeItem('hotel_app_bookings_v4');
+    localStorage.removeItem('hotel_app_rooms_v6');
+    localStorage.removeItem('hotel_app_custom_guests');
+    localStorage.removeItem('hotel_app_bookings_v5');
     toast.info('Hotel Operations reset to 0 baseline.');
   };
 
@@ -690,9 +744,12 @@ export const HotelProvider = ({ children }) => {
         checkInBooking,
         checkOutBooking,
         updateBookingStatus,
+        updatePaymentStatus,
         updateRoomAvailability,
         cancelBooking,
         isRoomDoubleBooked,
+        settings,
+        updateSettings,
         resetToCleanState
       }}
     >

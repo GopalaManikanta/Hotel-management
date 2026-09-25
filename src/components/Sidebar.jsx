@@ -11,6 +11,7 @@ import {
   Users,
   BarChart3,
   Utensils,
+  CreditCard,
   Settings,
   LogOut,
   ChevronLeft,
@@ -36,7 +37,9 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
     }
   };
 
-  const navItems = [
+  const isGuestRole = currentUser?.role === 'Guest';
+
+  const staffNavItems = [
     {
       name: 'Dashboard',
       path: '/dashboard',
@@ -65,6 +68,13 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
       badgeColor: 'bg-amber-50 text-amber-700 border-amber-200'
     },
     {
+      name: 'Payments & Invoices',
+      path: '/payments',
+      icon: CreditCard,
+      badge: 'GST Invoices',
+      badgeColor: 'bg-purple-50 text-purple-700 border-purple-200'
+    },
+    {
       name: 'Analytics & Reports',
       path: '/analytics',
       icon: BarChart3,
@@ -83,6 +93,41 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
       badge: null
     }
   ];
+
+  const guestNavItems = [
+    {
+      name: 'My Stay Portal',
+      path: '/dashboard',
+      icon: LayoutDashboard,
+      badge: 'Live Portal'
+    },
+    {
+      name: 'Browse Rooms & Suites',
+      path: '/rooms',
+      icon: BedDouble,
+      badge: null
+    },
+    {
+      name: 'My Reservations',
+      path: '/bookings',
+      icon: CalendarCheck,
+      badge: null
+    },
+    {
+      name: 'In-Room Dining',
+      path: '/dining',
+      icon: Utensils,
+      badge: 'Order Food'
+    },
+    {
+      name: 'My Invoices & Folio',
+      path: '/payments',
+      icon: CreditCard,
+      badge: null
+    }
+  ];
+
+  const navItems = isGuestRole ? guestNavItems : staffNavItems;
 
   const sidebarContent = (
     <div className="h-full flex flex-col justify-between bg-white border-r border-slate-200 text-slate-800 transition-all duration-300 relative select-none shadow-sm">

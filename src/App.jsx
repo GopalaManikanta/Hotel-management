@@ -16,6 +16,7 @@ import GuestProfile from './pages/GuestProfile';
 import Analytics from './pages/Analytics';
 import DiningServices from './pages/DiningServices';
 import SystemSettings from './pages/SystemSettings';
+import Payments from './pages/Payments';
 
 import { ToastContainer } from 'react-toastify';
 
@@ -123,6 +124,16 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DiningServices />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Payments & Invoicing Routes */}
+            <Route
+              path="/payments"
+              element={
+                <ProtectedRoute>
+                  <Payments />
                 </ProtectedRoute>
               }
             />

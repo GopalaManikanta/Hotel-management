@@ -15,9 +15,11 @@ import {
   BadgeCheck
 } from 'lucide-react';
 import { useHotel } from '../context/HotelContext';
+import { useAuth } from '../context/AuthContext';
 
 const BookingFormModal = ({ isOpen, onClose, initialGuest = null, initialRoom = null }) => {
   const { rooms, guests, addBooking, isRoomDoubleBooked } = useHotel();
+  const { currentUser } = useAuth();
 
   const todayStr = new Date().toISOString().split('T')[0];
   const defaultCheckOutStr = new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0];
@@ -114,6 +116,9 @@ const BookingFormModal = ({ isOpen, onClose, initialGuest = null, initialRoom = 
       setValue('guestMobile', initialGuest.mobileNumber || '');
       setValue('idProofType', initialGuest.idProofType || 'Aadhaar Card');
       setValue('idProofNumber', initialGuest.idProofNumber || '');
+    } else if (currentUser && currentUser.name) {
+      setValue('guestName', currentUser.name);
+      setValue('guestEmail', currentUser.email || 'guest@hotel.com');
     }
     if (initialRoom) {
       setValue('roomNumber', initialRoom.number || '');
@@ -122,7 +127,7 @@ const BookingFormModal = ({ isOpen, onClose, initialGuest = null, initialRoom = 
       setValue('roomNumber', availableRoomsList[0].number);
       setValue('roomType', availableRoomsList[0].type);
     }
-  }, [initialGuest, initialRoom, isOpen, setValue]);
+  }, [initialGuest, initialRoom, isOpen, currentUser, setValue]);
 
   const handleFormSubmit = (data) => {
     if (hasDoubleBookingConflict) {
