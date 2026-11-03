@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -8,62 +8,17 @@ import {
   EyeOff,
   Lock,
   Mail,
-  Hotel,
   ArrowRight,
-  KeyRound,
   ShieldCheck,
   Sparkles,
-  Building2,
-  CheckCircle2,
-  Star,
-  Zap,
-  Check,
-  Camera
+  ChefHat
 } from 'lucide-react';
-
-const luxuryScenes = [
-  {
-    id: 1,
-    title: 'Ocean Infinity Resort',
-    location: 'Celestia Private Bay',
-    url: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1600&q=80'
-  },
-  {
-    id: 2,
-    title: 'Overwater Villa Sanctuary',
-    location: 'Island Horizon Suites',
-    url: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1600&q=80'
-  },
-  {
-    id: 3,
-    title: 'Grand Palace Facade',
-    location: 'Celestia Main Plaza',
-    url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80'
-  },
-  {
-    id: 4,
-    title: 'Royal Night Lounge',
-    location: 'Presidential Penthouse',
-    url: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1600&q=80'
-  }
-];
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [activeSceneIndex, setActiveSceneIndex] = useState(0);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const activeScene = luxuryScenes[activeSceneIndex];
-
-  // Auto-rotate background luxury scene
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveSceneIndex((prev) => (prev + 1) % luxuryScenes.length);
-    }, 7000);
-    return () => clearInterval(timer);
-  }, []);
 
   const from = location.state?.from?.pathname || '/dashboard';
 
@@ -74,13 +29,14 @@ const Login = () => {
     formState: { errors, isSubmitting }
   } = useForm({
     defaultValues: {
-      email: '',
-      password: ''
+      identifier: '',
+      password: '',
+      rememberMe: true
     }
   });
 
   const onSubmit = (data) => {
-    const res = login(data.email, data.password);
+    const res = login(data.identifier, data.password);
     if (res.success) {
       toast.success(res.message);
       navigate(from, { replace: true });
@@ -89,287 +45,202 @@ const Login = () => {
     }
   };
 
-  const setDemoCredentials = (email, password) => {
-    setValue('email', email, { shouldValidate: true });
+  const handleFillDemo = (email, password) => {
+    setValue('identifier', email, { shouldValidate: true });
     setValue('password', password, { shouldValidate: true });
-    toast.info(`Filled credentials for ${email.includes('admin') ? 'Admin' : 'Guest'}`);
+    toast.info(`Filled credentials for ${email.split('@')[0]}`, { autoClose: 2000 });
   };
 
   return (
-    <div className="min-h-screen bg-white grid grid-cols-1 lg:grid-cols-12 select-none">
+    <div className="min-h-screen w-full relative flex items-center justify-center p-4 sm:p-6 lg:p-8 overflow-hidden select-none">
       
-      {/* LEFT COLUMN: Real-Time Luxury Hotel Image Showcase (Desktop) */}
-      <div className="hidden lg:flex lg:col-span-6 xl:col-span-7 relative flex-col justify-between p-12 overflow-hidden bg-slate-900 text-white">
-        {/* Background Image with Dark Overlay */}
-        <img
-          key={activeScene.id}
-          src={activeScene.url}
-          alt={activeScene.title}
-          className="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-all duration-1000 ease-in-out"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-slate-950/40" />
+      {/* 100% FULL BACKGROUND IMAGE */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat transform scale-105 transition-all duration-1000"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=2000&q=85')`
+        }}
+      />
 
-        {/* Top Header: Brand Logo & Interactive Scene Switcher */}
-        <div className="relative z-10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white p-2.5 rounded-2xl shadow-xl border border-white/20">
-              <Hotel className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-xl font-black tracking-tight text-white">Celestia Grand</h1>
-              <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest -mt-0.5">
-                Luxury Hotel & Resort Suite
-              </p>
-            </div>
-          </div>
+      {/* Dark Ambient Overlay for Contrast */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-black/85 via-black/60 to-black/75" />
 
-          {/* Interactive Scene Switcher */}
-          <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/20">
-            <Camera className="w-3.5 h-3.5 text-indigo-300 ml-1 mr-0.5" />
-            {luxuryScenes.map((scene, idx) => (
-              <button
-                key={scene.id}
-                type="button"
-                onClick={() => setActiveSceneIndex(idx)}
-                className={`px-2.5 py-1 rounded-xl text-[10px] font-extrabold transition cursor-pointer ${
-                  activeSceneIndex === idx
-                    ? 'bg-white text-slate-900 shadow-md'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
-                title={scene.title}
-              >
-                Scene 0{scene.id}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Middle Real-Time Feature Overlays */}
-        <div className="relative z-10 space-y-6 max-w-xl my-auto py-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/30 backdrop-blur-md border border-indigo-400/30 text-indigo-200 text-xs font-bold shadow-lg">
-            <Sparkles className="w-4 h-4 text-indigo-300" />
-            Enterprise Desk Operations Platform
-          </div>
-
-          <h2 className="text-4xl xl:text-5xl font-black tracking-tight leading-tight text-white drop-shadow-md">
-            Seamless Guest Operations & Real-Time Room Suite.
-          </h2>
-
-          <p className="text-slate-300 text-sm xl:text-base leading-relaxed font-medium">
-            Manage reservations, room availability, guest check-ins, and financial revenue tracking with zero delay in real-time.
-          </p>
-
-          {/* Floating Glassmorphism Cards */}
-          <div className="grid grid-cols-2 gap-4 pt-2">
-            <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-xl">
-              <div className="flex items-center gap-3 mb-1">
-                <Building2 className="w-5 h-5 text-amber-400" />
-                <span className="text-xs font-bold text-slate-200">Inventory Sync</span>
-              </div>
-              <p className="text-2xl font-black text-white">20 Rooms</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">Live real-time status updates</p>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-xl">
-              <div className="flex items-center gap-3 mb-1">
-                <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
-                <span className="text-xs font-bold text-slate-200">Rating & Safety</span>
-              </div>
-              <p className="text-2xl font-black text-white">5-Star Standard</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">256-Bit SSL Encrypted</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Feature Badges & Testimonial */}
-        <div className="relative z-10 border-t border-white/15 pt-6 flex items-center justify-between text-xs text-slate-300 font-medium">
-          <div className="flex items-center gap-6">
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              Instant Check-In
-            </span>
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-indigo-400" />
-              Role-Based Access
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Zap className="w-4 h-4 text-amber-400" />
-              0 Baseline Ready
-            </span>
-          </div>
-
-          <div className="text-[11px] text-slate-400">
-            © 2026 Celestia Grand Suite
-          </div>
-        </div>
-      </div>
-
-      {/* RIGHT COLUMN: Pure White Authentication Form Container */}
-      <div className="col-span-1 lg:col-span-6 xl:col-span-5 flex flex-col justify-between p-6 sm:p-12 lg:p-16 bg-white min-h-screen">
+      {/* FLOATING CURVED LOGIN CARD (Smooth Curve Shape Design) */}
+      <div className="relative z-10 w-full max-w-md bg-white/95 backdrop-blur-xl rounded-[36px] sm:rounded-[44px] shadow-2xl border border-white/40 p-6 sm:p-9 text-slate-900 transition-all duration-300">
         
-        {/* Mobile Header Logo */}
-        <div className="lg:hidden flex items-center gap-3 mb-8">
-          <div className="bg-indigo-600 text-white p-2.5 rounded-2xl shadow-md">
-            <Hotel className="w-6 h-6" />
+        {/* Brand Header */}
+        <div className="text-center mb-6">
+          <div className="inline-flex p-3 rounded-2xl bg-gradient-to-tr from-orange-500 to-rose-600 text-white shadow-lg shadow-orange-500/30 mb-3">
+            <ChefHat className="w-7 h-7" />
           </div>
-          <div>
-            <h1 className="text-lg font-black tracking-tight text-slate-900">Celestia Grand</h1>
-            <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-widest -mt-0.5">
-              Hotel Suite
-            </p>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+            Crave<span className="text-orange-600">Dash</span>
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Sign in to explore delicious food near you
+          </p>
+        </div>
+
+        {/* 1-Click Quick Demo Login Profiles */}
+        <div className="mb-5 p-3 rounded-2xl bg-orange-50/80 border border-orange-100">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-extrabold text-orange-950 uppercase tracking-wider flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5 text-orange-600" />
+              1-Click Demo Fill:
+            </span>
+            <span className="text-[10px] text-orange-600 font-semibold">Instant Test</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={() => handleFillDemo('customer@foodie.com', 'Password@123')}
+              className="py-1.5 px-2 rounded-xl bg-white hover:bg-orange-600 hover:text-white border border-orange-200 text-xs font-bold text-slate-700 transition shadow-2xs text-center cursor-pointer flex flex-col items-center"
+            >
+              <span>Customer</span>
+              <span className="text-[10px] opacity-70">Rahul</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleFillDemo('admin@foodie.com', 'Password@123')}
+              className="py-1.5 px-2 rounded-xl bg-white hover:bg-orange-600 hover:text-white border border-orange-200 text-xs font-bold text-slate-700 transition shadow-2xs text-center cursor-pointer flex flex-col items-center"
+            >
+              <span>Admin</span>
+              <span className="text-[10px] opacity-70">Vikram</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleFillDemo('rider@foodie.com', 'Password@123')}
+              className="py-1.5 px-2 rounded-xl bg-white hover:bg-orange-600 hover:text-white border border-orange-200 text-xs font-bold text-slate-700 transition shadow-2xs text-center cursor-pointer flex flex-col items-center"
+            >
+              <span>Rider</span>
+              <span className="text-[10px] opacity-70">Suresh</span>
+            </button>
           </div>
         </div>
 
-        <div className="my-auto max-w-md w-full mx-auto space-y-8">
-          {/* Header Title */}
+        {/* Login Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+          
+          {/* Email / Mobile Input */}
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-indigo-700 text-xs font-bold mb-3">
-              <Hotel className="w-3.5 h-3.5 text-indigo-600" />
-              Portal Authentication
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              Email or Mobile Number
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <Mail className="w-4 h-4" />
+              </div>
+              <input
+                type="text"
+                placeholder="customer@foodie.com or 9876543210"
+                {...register('identifier', {
+                  required: 'Email or mobile number is required',
+                  validate: (val) => {
+                    const trimmed = val.trim();
+                    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+                    const isPhone = /^[0-9]{10}$/.test(trimmed.replace(/\D/g, ''));
+                    return isEmail || isPhone || 'Enter valid email or 10-digit number';
+                  }
+                })}
+                className={`w-full pl-10 pr-3.5 py-3 rounded-2xl border text-sm transition focus:outline-none focus:ring-2 bg-slate-50/80 ${
+                  errors.identifier
+                    ? 'border-rose-400 focus:ring-rose-200 bg-rose-50/40'
+                    : 'border-slate-200 focus:ring-orange-200 focus:border-orange-500'
+                }`}
+              />
             </div>
-            <h2 className="text-3xl font-black tracking-tight text-slate-900">
-              Welcome Back
-            </h2>
-            <p className="text-sm text-slate-500 mt-1.5">
-              Sign in with your credentials to access the Celestia Grand Desk.
-            </p>
+            {errors.identifier && (
+              <p className="mt-1 text-xs text-rose-600 font-medium">{errors.identifier.message}</p>
+            )}
           </div>
 
-          {/* Quick Demo Credentials Panel */}
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-700 font-bold flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                Quick Demo Accounts:
-              </span>
-              <span className="text-[10px] text-slate-400 font-semibold">Click to auto-fill</span>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-2.5">
-              <button
-                type="button"
-                onClick={() => setDemoCredentials('guest@hotel.com', 'Password@123')}
-                className="py-2 px-3 rounded-xl bg-white hover:bg-indigo-50 text-indigo-700 border border-slate-200 hover:border-indigo-300 text-xs font-bold transition flex items-center justify-between group shadow-xs cursor-pointer"
-              >
-                <span>Guest User</span>
-                <Check className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 text-indigo-600 transition-opacity" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setDemoCredentials('admin@hotel.com', 'Password@123')}
-                className="py-2 px-3 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 border border-slate-200 hover:border-emerald-300 text-xs font-bold transition flex items-center justify-between group shadow-xs cursor-pointer"
-              >
-                <span>Admin User</span>
-                <Check className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 text-emerald-600 transition-opacity" />
-              </button>
-            </div>
-          </div>
-
-          {/* Login Form */}
-          <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
-            
-            {/* Email Field */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                Email Address
+          {/* Password with Show/Hide Toggle */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Password
               </label>
-              <div className="relative rounded-xl shadow-xs">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Mail className="w-5 h-5" />
-                </div>
-                <input
-                  type="email"
-                  placeholder="name@example.com"
-                  {...register('email', {
-                    required: 'Email is required',
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Invalid email address'
-                    }
-                  })}
-                  className={`block w-full pl-11 pr-4 py-3 bg-white border ${
-                    errors.email ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100'
-                  } rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition`}
-                />
-              </div>
-              {errors.email && (
-                <p className="mt-1.5 text-xs text-rose-600 font-semibold">{errors.email.message}</p>
-              )}
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                  Password
-                </label>
-                <Link
-                  to="/forgot-password"
-                  className="text-xs font-bold text-indigo-600 hover:text-indigo-700 transition-colors flex items-center gap-1"
-                >
-                  <KeyRound className="w-3.5 h-3.5" />
-                  Forgot password?
-                </Link>
-              </div>
-              <div className="relative rounded-xl shadow-xs">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Lock className="w-5 h-5" />
-                </div>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  {...register('password', {
-                    required: 'Password is required',
-                    minLength: {
-                      value: 6,
-                      message: 'Password must be at least 6 characters'
-                    }
-                  })}
-                  className={`block w-full pl-11 pr-11 py-3 bg-white border ${
-                    errors.password ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100'
-                  } rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="mt-1.5 text-xs text-rose-600 font-semibold">{errors.password.message}</p>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full flex justify-center items-center gap-2 py-3.5 px-4 rounded-xl shadow-lg text-sm font-black text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 transition-all cursor-pointer disabled:opacity-50"
+              <Link
+                to="/forgot-password"
+                className="text-xs font-semibold text-orange-600 hover:text-orange-700 transition"
               >
-                Sign In to Dashboard
-                <ArrowRight className="w-4 h-4" />
+                Forgot Password?
+              </Link>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <Lock className="w-4 h-4" />
+              </div>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Enter your password"
+                {...register('password', {
+                  required: 'Password is required',
+                  minLength: { value: 6, message: 'Password must be at least 6 characters' }
+                })}
+                className={`w-full pl-10 pr-11 py-3 rounded-2xl border text-sm transition focus:outline-none focus:ring-2 bg-slate-50/80 ${
+                  errors.password
+                    ? 'border-rose-400 focus:ring-rose-200 bg-rose-50/40'
+                    : 'border-slate-200 focus:ring-orange-200 focus:border-orange-500'
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4 text-orange-600" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-          </form>
-
-          {/* Register Callout */}
-          <div className="text-center border-t border-slate-100 pt-6">
-            <p className="text-xs text-slate-500 font-medium">
-              Don't have an account yet?{' '}
-              <Link to="/register" className="font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
-                Create Account
-              </Link>
-            </p>
+            {errors.password && (
+              <p className="mt-1 text-xs text-rose-600 font-medium">{errors.password.message}</p>
+            )}
           </div>
-        </div>
 
-        {/* Footer info */}
-        <div className="text-center text-[11px] text-slate-400 font-medium mt-8">
-          Celestia Grand Hotel Suite v4.2 • Secured Access
+          {/* Remember Me */}
+          <div className="flex items-center justify-between text-xs pt-0.5">
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                {...register('rememberMe')}
+                className="w-4 h-4 rounded text-orange-600 focus:ring-orange-500 border-slate-300"
+              />
+              <span className="text-slate-600 font-medium">Keep me signed in</span>
+            </label>
+            <span className="text-emerald-600 font-medium flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5" /> 256-bit Secure
+            </span>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full mt-2 py-3.5 px-4 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-orange-500 via-orange-600 to-rose-600 hover:from-orange-600 hover:to-rose-700 shadow-lg shadow-orange-500/30 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+          >
+            {isSubmitting ? (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <>
+                <span>Sign In & Order Food</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </form>
+
+        {/* Sign Up Link */}
+        <div className="mt-6 pt-5 border-t border-slate-100 text-center">
+          <p className="text-xs sm:text-sm text-slate-500">
+            Don't have an account?{' '}
+            <Link
+              to="/register"
+              className="font-bold text-orange-600 hover:text-orange-700 transition inline-flex items-center gap-1"
+            >
+              Sign Up <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </p>
         </div>
 
       </div>

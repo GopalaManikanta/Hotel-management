@@ -3,32 +3,72 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import { Eye, EyeOff, Lock, Mail, KeyRound, ArrowLeft } from 'lucide-react';
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  KeyRound,
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  Sparkles
+} from 'lucide-react';
 
 const ForgotPassword = () => {
+  const [step, setStep] = useState(1); // 1: Lookup, 2: Reset
+  const [targetAccount, setTargetAccount] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { forgotPassword } = useAuth();
+  const { forgotPassword, registeredUsers } = useAuth();
   const navigate = useNavigate();
 
+  // Step 1 Form: Lookup
   const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors, isSubmitting }
+    register: registerLookup,
+    handleSubmit: handleSubmitLookup,
+    formState: { errors: errorsLookup, isSubmitting: isSubmittingLookup }
   } = useForm({
-    defaultValues: {
-      email: '',
-      newPassword: '',
-      confirmPassword: ''
-    }
+    defaultValues: { identifier: '' }
   });
 
-  const newPasswordValue = watch('newPassword');
+  // Step 2 Form: Reset
+  const {
+    register: registerReset,
+    handleSubmit: handleSubmitReset,
+    watch: watchReset,
+    formState: { errors: errorsReset, isSubmitting: isSubmittingReset }
+  } = useForm({
+    defaultValues: { newPassword: '', confirmPassword: '' }
+  });
 
-  const onSubmit = (data) => {
-    const res = forgotPassword(data.email, data.newPassword);
+  const newPasswordValue = watchReset('newPassword');
+
+  // Verify Account
+  const onLookupSubmit = (data) => {
+    const cleanId = (data.identifier || '').trim().toLowerCase();
+    const cleanPhone = cleanId.replace(/\D/g, '');
+
+    const found = registeredUsers.some((u) => {
+      const matchEmail = u.email && u.email.toLowerCase() === cleanId;
+      const matchPhone = cleanPhone && u.phone && u.phone.replace(/\D/g, '') === cleanPhone;
+      return matchEmail || matchPhone;
+    });
+
+    if (!found) {
+      toast.error('No account found with this email or mobile number.');
+      return;
+    }
+
+    setTargetAccount(cleanId);
+    setStep(2);
+    toast.success('Account found! Choose your new password.');
+  };
+
+  // Reset Password
+  const onResetSubmit = (data) => {
+    const res = forgotPassword(targetAccount, data.newPassword);
     if (res.success) {
       toast.success(res.message);
       navigate('/login');
@@ -38,142 +78,194 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8 text-slate-900">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <div className="inline-flex p-3 rounded-2xl bg-white border border-slate-200 text-indigo-600 mb-4 shadow-sm">
-          <KeyRound className="w-10 h-10" />
-        </div>
-        <h2 className="text-3xl font-black tracking-tight text-slate-900">
-          Reset Password
-        </h2>
-        <p className="mt-2 text-sm text-slate-500">
-          Enter your registered email and choose a new password
-        </p>
-      </div>
+    <div className="min-h-screen w-full relative flex items-center justify-center p-4 sm:p-6 lg:p-8 overflow-hidden select-none">
+      
+      {/* 100% FULL BACKGROUND IMAGE */}
+      <div
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat transform scale-105 transition-all duration-1000"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=2000&q=85')`
+        }}
+      />
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-xl border border-slate-200 sm:rounded-3xl sm:px-10">
-          <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-            
-            {/* Registered Email */}
+      {/* Dark Ambient Overlay */}
+      <div className="fixed inset-0 bg-gradient-to-tr from-black/85 via-black/65 to-black/80" />
+
+      {/* FLOATING CURVED CARD */}
+      <div className="relative z-10 w-full max-w-md bg-white/95 backdrop-blur-xl rounded-[36px] sm:rounded-[44px] shadow-2xl border border-white/40 p-6 sm:p-9 text-slate-900 transition-all duration-300">
+        
+        {/* Brand Header */}
+        <div className="text-center mb-6">
+          <div className="inline-flex p-3 rounded-2xl bg-gradient-to-tr from-orange-500 to-rose-600 text-white shadow-lg shadow-orange-500/30 mb-2">
+            <KeyRound className="w-7 h-7" />
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+            {step === 1 ? 'Reset Password' : 'New Password'}
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            {step === 1
+              ? 'Enter your registered email or mobile to recover account'
+              : `Creating new password for: ${targetAccount}`}
+          </p>
+        </div>
+
+        {/* Step Indicator */}
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <div className={`h-1.5 rounded-full transition-all duration-300 ${step === 1 ? 'w-10 bg-orange-600' : 'w-4 bg-emerald-500'}`} />
+          <div className={`h-1.5 rounded-full transition-all duration-300 ${step === 2 ? 'w-10 bg-orange-600' : 'w-4 bg-slate-200'}`} />
+        </div>
+
+        {step === 1 ? (
+          /* STEP 1: Verify Account */
+          <form onSubmit={handleSubmitLookup(onLookupSubmit)} className="space-y-4" noValidate>
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                Registered Email
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                Registered Email or Mobile
               </label>
-              <div className="relative rounded-xl shadow-xs">
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Mail className="w-5 h-5" />
+                  <Mail className="w-4 h-4" />
                 </div>
                 <input
-                  type="email"
-                  placeholder="name@example.com"
-                  {...register('email', {
-                    required: 'Email is required',
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Invalid email address'
-                    }
+                  type="text"
+                  placeholder="e.g. customer@foodie.com or 9876543210"
+                  {...registerLookup('identifier', {
+                    required: 'Email or mobile number is required'
                   })}
-                  className={`block w-full pl-11 pr-4 py-2.5 bg-white border ${
-                    errors.email ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-500'
-                  } rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition`}
+                  className={`w-full pl-10 pr-3.5 py-3 rounded-2xl border text-sm transition focus:outline-none focus:ring-2 bg-slate-50/80 ${
+                    errorsLookup.identifier
+                      ? 'border-rose-400 focus:ring-rose-200 bg-rose-50/40'
+                      : 'border-slate-200 focus:ring-orange-200 focus:border-orange-500'
+                  }`}
                 />
               </div>
-              {errors.email && (
-                <p className="mt-1.5 text-xs text-rose-600 font-semibold">{errors.email.message}</p>
+              {errorsLookup.identifier && (
+                <p className="mt-1 text-xs text-rose-600 font-medium">
+                  {errorsLookup.identifier.message}
+                </p>
               )}
             </div>
 
+            <div className="p-3 bg-amber-50/80 rounded-2xl border border-amber-200/60 text-xs text-amber-800 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>Demo accounts: <b>customer@foodie.com</b> or <b>admin@foodie.com</b></span>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmittingLookup}
+              className="w-full mt-2 py-3.5 px-4 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-orange-500 via-orange-600 to-rose-600 hover:from-orange-600 hover:to-rose-700 shadow-lg shadow-orange-500/30 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+            >
+              <span>Verify & Continue</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
+        ) : (
+          /* STEP 2: Set New Password */
+          <form onSubmit={handleSubmitReset(onResetSubmit)} className="space-y-4" noValidate>
             {/* New Password */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                 New Password
               </label>
-              <div className="relative rounded-xl shadow-xs">
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Lock className="w-5 h-5" />
+                  <Lock className="w-4 h-4" />
                 </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  {...register('newPassword', {
+                  placeholder="Min 6 characters"
+                  {...registerReset('newPassword', {
                     required: 'New password is required',
-                    minLength: {
-                      value: 6,
-                      message: 'Password must be at least 6 characters'
-                    }
+                    minLength: { value: 6, message: 'Password must be at least 6 characters' }
                   })}
-                  className={`block w-full pl-11 pr-11 py-2.5 bg-white border ${
-                    errors.newPassword ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-500'
-                  } rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition`}
+                  className={`w-full pl-10 pr-11 py-3 rounded-2xl border text-sm transition focus:outline-none focus:ring-2 bg-slate-50/80 ${
+                    errorsReset.newPassword
+                      ? 'border-rose-400 focus:ring-rose-200 bg-rose-50/40'
+                      : 'border-slate-200 focus:ring-orange-200 focus:border-orange-500'
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff className="w-4 h-4 text-orange-600" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              {errors.newPassword && (
-                <p className="mt-1.5 text-xs text-rose-600 font-semibold">{errors.newPassword.message}</p>
+              {errorsReset.newPassword && (
+                <p className="mt-1 text-xs text-rose-600 font-medium">{errorsReset.newPassword.message}</p>
               )}
             </div>
 
             {/* Confirm New Password */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                 Confirm New Password
               </label>
-              <div className="relative rounded-xl shadow-xs">
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Lock className="w-5 h-5" />
+                  <Lock className="w-4 h-4" />
                 </div>
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  {...register('confirmPassword', {
-                    required: 'Please confirm your new password',
+                  placeholder="Repeat new password"
+                  {...registerReset('confirmPassword', {
+                    required: 'Please confirm password',
                     validate: (val) => val === newPasswordValue || 'Passwords do not match'
                   })}
-                  className={`block w-full pl-11 pr-11 py-2.5 bg-white border ${
-                    errors.confirmPassword ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-500'
-                  } rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition`}
+                  className={`w-full pl-10 pr-11 py-3 rounded-2xl border text-sm transition focus:outline-none focus:ring-2 bg-slate-50/80 ${
+                    errorsReset.confirmPassword
+                      ? 'border-rose-400 focus:ring-rose-200 bg-rose-50/40'
+                      : 'border-slate-200 focus:ring-orange-200 focus:border-orange-500'
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4 text-orange-600" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              {errors.confirmPassword && (
-                <p className="mt-1.5 text-xs text-rose-600 font-semibold">{errors.confirmPassword.message}</p>
+              {errorsReset.confirmPassword && (
+                <p className="mt-1 text-xs text-rose-600 font-medium">{errorsReset.confirmPassword.message}</p>
               )}
             </div>
 
-            {/* Submit Button */}
-            <div className="pt-2">
+            <div className="pt-2 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="py-3 px-4 rounded-2xl font-bold text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 transition cursor-pointer"
+              >
+                Back
+              </button>
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl shadow-md text-sm font-black text-white bg-indigo-600 hover:bg-indigo-700 transition-all cursor-pointer disabled:opacity-50"
+                disabled={isSubmittingReset}
+                className="flex-1 py-3 px-4 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-orange-500 via-orange-600 to-rose-600 hover:from-orange-600 hover:to-rose-700 shadow-lg shadow-orange-500/30 transition cursor-pointer disabled:opacity-70 flex items-center justify-center gap-2"
               >
-                Update Password
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Save New Password</span>
               </button>
             </div>
           </form>
+        )}
 
-          {/* Back to Login Link */}
-          <div className="mt-6 text-center border-t border-slate-100 pt-5">
-            <Link to="/login" className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-indigo-600 transition-colors">
-              <ArrowLeft className="w-3.5 h-3.5" />
-              Back to Sign In
-            </Link>
-          </div>
+        {/* Back to Login */}
+        <div className="mt-6 pt-5 border-t border-slate-100 text-center">
+          <Link
+            to="/login"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-600 hover:text-orange-600 transition"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Sign In</span>
+          </Link>
         </div>
+
       </div>
+
     </div>
   );
 };

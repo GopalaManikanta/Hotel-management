@@ -9,12 +9,10 @@ import {
   Lock,
   Mail,
   User,
-  Shield,
-  Hotel,
-  UserPlus,
-  Sparkles,
-  CheckCircle2,
-  ShieldCheck
+  Phone,
+  MapPin,
+  ChefHat,
+  ArrowRight
 } from 'lucide-react';
 
 const Register = () => {
@@ -33,9 +31,12 @@ const Register = () => {
     defaultValues: {
       name: '',
       email: '',
-      role: 'Guest',
+      phone: '',
+      address: '',
+      role: 'Customer',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      agreeTerms: true
     }
   });
 
@@ -45,6 +46,8 @@ const Register = () => {
     const res = registerAuth({
       name: data.name,
       email: data.email,
+      phone: data.phone,
+      address: data.address,
       role: data.role,
       password: data.password
     });
@@ -58,291 +61,289 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white grid grid-cols-1 lg:grid-cols-12 select-none">
+    <div className="min-h-screen w-full relative flex items-center justify-center p-4 sm:p-6 lg:p-8 overflow-y-auto select-none">
       
-      {/* LEFT COLUMN: Real-Time Luxury Hotel Image Showcase (Desktop) */}
-      <div className="hidden lg:flex lg:col-span-6 xl:col-span-7 relative flex-col justify-between p-12 overflow-hidden bg-slate-900 text-white">
-        {/* Background Image with Dark Overlay */}
-        <img
-          src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1600&q=80"
-          alt="Celestia Grand Luxury Sanctuary & Overwater Villa"
-          className="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-transform duration-10000 ease-out"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-slate-950/40" />
+      {/* 100% FULL BACKGROUND IMAGE */}
+      <div
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat transform scale-105 transition-all duration-1000"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=2000&q=85')`
+        }}
+      />
 
-        {/* Top Header: Brand Logo */}
-        <div className="relative z-10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white p-2.5 rounded-2xl shadow-xl border border-white/20">
-              <Hotel className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-xl font-black tracking-tight text-white">Celestia Grand</h1>
-              <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest -mt-0.5">
-                Luxury Hotel & Resort Suite
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* Dark Ambient Overlay */}
+      <div className="fixed inset-0 bg-gradient-to-tr from-black/85 via-black/65 to-black/80" />
 
-        {/* Middle Real-Time Feature Overlays */}
-        <div className="relative z-10 space-y-6 max-w-xl my-auto py-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/30 backdrop-blur-md border border-indigo-400/30 text-indigo-200 text-xs font-bold shadow-lg">
-            <Sparkles className="w-4 h-4 text-indigo-300" />
-            Join the Enterprise Operations Suite
-          </div>
-
-          <h2 className="text-4xl xl:text-5xl font-black tracking-tight leading-tight text-white drop-shadow-md">
-            Create Your Account & Experience Modern Hospitality.
-          </h2>
-
-          <p className="text-slate-300 text-sm xl:text-base leading-relaxed font-medium">
-            Register as a Guest Customer or Hotel Manager to gain full access to live room availability and desk tools.
-          </p>
-
-          {/* Feature Bullets */}
-          <div className="space-y-3 pt-2">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/15">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-              <span className="text-xs font-semibold text-slate-100">Real-Time Inventory Access across 20+ Deluxe Suites</span>
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/15">
-              <ShieldCheck className="w-5 h-5 text-indigo-400 shrink-0" />
-              <span className="text-xs font-semibold text-slate-100">Role-Based Security for Managers & Guests</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Info */}
-        <div className="relative z-10 border-t border-white/15 pt-6 flex items-center justify-between text-xs text-slate-300 font-medium">
-          <div className="flex items-center gap-4">
-            <span>24/7 Security Protocol</span>
-            <span>•</span>
-            <span>Instant Activation</span>
-          </div>
-
-          <div className="text-[11px] text-slate-400">
-            © 2026 Celestia Grand Suite
-          </div>
-        </div>
-      </div>
-
-      {/* RIGHT COLUMN: Pure White Registration Form */}
-      <div className="col-span-1 lg:col-span-6 xl:col-span-5 flex flex-col justify-between p-6 sm:p-12 lg:p-14 bg-white min-h-screen">
+      {/* FLOATING CURVED SIGNUP CARD */}
+      <div className="relative z-10 w-full max-w-lg bg-white/95 backdrop-blur-xl rounded-[36px] sm:rounded-[44px] shadow-2xl border border-white/40 p-6 sm:p-9 text-slate-900 my-6 transition-all duration-300">
         
-        {/* Mobile Header Logo */}
-        <div className="lg:hidden flex items-center gap-3 mb-6">
-          <div className="bg-indigo-600 text-white p-2.5 rounded-2xl shadow-md">
-            <Hotel className="w-6 h-6" />
+        {/* Brand Header */}
+        <div className="text-center mb-5">
+          <div className="inline-flex p-3 rounded-2xl bg-gradient-to-tr from-orange-500 to-rose-600 text-white shadow-lg shadow-orange-500/30 mb-2">
+            <ChefHat className="w-7 h-7" />
           </div>
-          <div>
-            <h1 className="text-lg font-black tracking-tight text-slate-900">Celestia Grand</h1>
-            <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-widest -mt-0.5">
-              Hotel Suite
-            </p>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+            Join Crave<span className="text-orange-600">Dash</span>
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Create an account to start ordering delicious food
+          </p>
         </div>
 
-        <div className="my-auto max-w-md w-full mx-auto space-y-6">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-indigo-700 text-xs font-bold mb-3">
-              <UserPlus className="w-3.5 h-3.5 text-indigo-600" />
-              New Account Registration
-            </div>
-            <h2 className="text-3xl font-black tracking-tight text-slate-900">
-              Create Your Account
-            </h2>
-            <p className="text-sm text-slate-500 mt-1.5">
-              Enter your information below to get started.
-            </p>
-          </div>
-
-          <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-            
-            {/* Full Name */}
+        {/* Signup Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5" noValidate>
+          
+          {/* Full Name & Account Role */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                Full Name
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Full Name *
               </label>
-              <div className="relative rounded-xl shadow-xs">
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <User className="w-5 h-5" />
+                  <User className="w-4 h-4" />
                 </div>
                 <input
                   type="text"
-                  placeholder="John Doe"
+                  placeholder="e.g. Rahul Sharma"
                   {...register('name', {
                     required: 'Full name is required',
-                    minLength: { value: 3, message: 'Name must be at least 3 characters' }
+                    minLength: { value: 2, message: 'Min 2 characters' }
                   })}
-                  className={`block w-full pl-11 pr-4 py-2.5 bg-white border ${
-                    errors.name ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100'
-                  } rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition`}
+                  className={`w-full pl-10 pr-3 py-2.5 rounded-2xl border text-xs sm:text-sm transition focus:outline-none focus:ring-2 bg-slate-50/80 ${
+                    errors.name
+                      ? 'border-rose-400 focus:ring-rose-200 bg-rose-50/40'
+                      : 'border-slate-200 focus:ring-orange-200 focus:border-orange-500'
+                  }`}
                 />
               </div>
               {errors.name && (
-                <p className="mt-1 text-xs text-rose-600 font-semibold">{errors.name.message}</p>
+                <p className="mt-0.5 text-xs text-rose-600 font-medium">{errors.name.message}</p>
               )}
             </div>
 
-            {/* Email Address */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                Email Address
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Role
               </label>
-              <div className="relative rounded-xl shadow-xs">
+              <select
+                {...register('role')}
+                className="w-full px-3 py-2.5 rounded-2xl border border-slate-200 bg-slate-50/80 text-xs sm:text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-500"
+              >
+                <option value="Customer">🍔 Customer</option>
+                <option value="Admin">👨‍🍳 Restaurant Admin</option>
+                <option value="Rider">🛵 Delivery Rider</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Email & Phone */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Email Address *
+              </label>
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Mail className="w-5 h-5" />
+                  <Mail className="w-4 h-4" />
                 </div>
                 <input
                   type="email"
-                  placeholder="john@example.com"
+                  placeholder="name@example.com"
                   {...register('email', {
-                    required: 'Email address is required',
+                    required: 'Email is required',
                     pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Invalid email address'
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: 'Enter valid email'
                     }
                   })}
-                  className={`block w-full pl-11 pr-4 py-2.5 bg-white border ${
-                    errors.email ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100'
-                  } rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition`}
+                  className={`w-full pl-10 pr-3 py-2.5 rounded-2xl border text-xs sm:text-sm transition focus:outline-none focus:ring-2 bg-slate-50/80 ${
+                    errors.email
+                      ? 'border-rose-400 focus:ring-rose-200 bg-rose-50/40'
+                      : 'border-slate-200 focus:ring-orange-200 focus:border-orange-500'
+                  }`}
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-xs text-rose-600 font-semibold">{errors.email.message}</p>
+                <p className="mt-0.5 text-xs text-rose-600 font-medium">{errors.email.message}</p>
               )}
             </div>
 
-            {/* Account Role Selection */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                Account Role
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Mobile Number *
               </label>
-              <div className="grid grid-cols-2 gap-3">
-                <label className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-slate-200 cursor-pointer hover:border-indigo-300 transition shadow-xs">
-                  <input
-                    type="radio"
-                    value="Guest"
-                    {...register('role')}
-                    className="text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-indigo-600" />
-                    Guest Customer
-                  </span>
-                </label>
-
-                <label className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-slate-200 cursor-pointer hover:border-indigo-300 transition shadow-xs">
-                  <input
-                    type="radio"
-                    value="Admin"
-                    {...register('role')}
-                    className="text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <Shield className="w-3.5 h-3.5 text-indigo-600" />
-                    Hotel Manager
-                  </span>
-                </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Phone className="w-4 h-4" />
+                </div>
+                <input
+                  type="tel"
+                  placeholder="10-digit number"
+                  maxLength={10}
+                  {...register('phone', {
+                    required: 'Mobile is required',
+                    pattern: {
+                      value: /^[6-9]\d{9}$/,
+                      message: 'Valid 10-digit number'
+                    }
+                  })}
+                  className={`w-full pl-10 pr-3 py-2.5 rounded-2xl border text-xs sm:text-sm transition focus:outline-none focus:ring-2 bg-slate-50/80 ${
+                    errors.phone
+                      ? 'border-rose-400 focus:ring-rose-200 bg-rose-50/40'
+                      : 'border-slate-200 focus:ring-orange-200 focus:border-orange-500'
+                  }`}
+                />
               </div>
+              {errors.phone && (
+                <p className="mt-0.5 text-xs text-rose-600 font-medium">{errors.phone.message}</p>
+              )}
             </div>
+          </div>
 
+          {/* Delivery Address */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Delivery Address *
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <MapPin className="w-4 h-4" />
+              </div>
+              <input
+                type="text"
+                placeholder="e.g. Flat 402, Jubilee Hills, Hyderabad"
+                {...register('address', {
+                  required: 'Delivery address is required'
+                })}
+                className={`w-full pl-10 pr-3 py-2.5 rounded-2xl border text-xs sm:text-sm transition focus:outline-none focus:ring-2 bg-slate-50/80 ${
+                  errors.address
+                    ? 'border-rose-400 focus:ring-rose-200 bg-rose-50/40'
+                    : 'border-slate-200 focus:ring-orange-200 focus:border-orange-500'
+                }`}
+              />
+            </div>
+            {errors.address && (
+              <p className="mt-0.5 text-xs text-rose-600 font-medium">{errors.address.message}</p>
+            )}
+          </div>
+
+          {/* Password & Confirm Password with Show/Hide on BOTH */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Password */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                Password
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Password *
               </label>
-              <div className="relative rounded-xl shadow-xs">
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Lock className="w-5 h-5" />
+                  <Lock className="w-4 h-4" />
                 </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
+                  placeholder="Min 6 chars"
                   {...register('password', {
                     required: 'Password is required',
-                    minLength: {
-                      value: 6,
-                      message: 'Password must be at least 6 characters'
-                    }
+                    minLength: { value: 6, message: 'Min 6 characters' }
                   })}
-                  className={`block w-full pl-11 pr-11 py-2.5 bg-white border ${
-                    errors.password ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100'
-                  } rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition`}
+                  className={`w-full pl-10 pr-10 py-2.5 rounded-2xl border text-xs sm:text-sm transition focus:outline-none focus:ring-2 bg-slate-50/80 ${
+                    errors.password
+                      ? 'border-rose-400 focus:ring-rose-200 bg-rose-50/40'
+                      : 'border-slate-200 focus:ring-orange-200 focus:border-orange-500'
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff className="w-4 h-4 text-orange-600" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-xs text-rose-600 font-semibold">{errors.password.message}</p>
+                <p className="mt-0.5 text-xs text-rose-600 font-medium">{errors.password.message}</p>
               )}
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                Confirm Password
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Confirm Password *
               </label>
-              <div className="relative rounded-xl shadow-xs">
+              <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Lock className="w-5 h-5" />
+                  <Lock className="w-4 h-4" />
                 </div>
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
+                  placeholder="Repeat password"
                   {...register('confirmPassword', {
-                    required: 'Please confirm your password',
+                    required: 'Please confirm password',
                     validate: (val) => val === passwordValue || 'Passwords do not match'
                   })}
-                  className={`block w-full pl-11 pr-11 py-2.5 bg-white border ${
-                    errors.confirmPassword ? 'border-rose-500' : 'border-slate-200 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100'
-                  } rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none transition`}
+                  className={`w-full pl-10 pr-10 py-2.5 rounded-2xl border text-xs sm:text-sm transition focus:outline-none focus:ring-2 bg-slate-50/80 ${
+                    errors.confirmPassword
+                      ? 'border-rose-400 focus:ring-rose-200 bg-rose-50/40'
+                      : 'border-slate-200 focus:ring-orange-200 focus:border-orange-500'
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4 text-orange-600" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p className="mt-1 text-xs text-rose-600 font-semibold">{errors.confirmPassword.message}</p>
+                <p className="mt-0.5 text-xs text-rose-600 font-medium">{errors.confirmPassword.message}</p>
               )}
             </div>
-
-            {/* Submit Button */}
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl shadow-md text-sm font-black text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 transition-all cursor-pointer disabled:opacity-50"
-              >
-                <UserPlus className="w-4 h-4" />
-                Complete Registration
-              </button>
-            </div>
-          </form>
-
-          {/* Login Link */}
-          <div className="text-center border-t border-slate-100 pt-4">
-            <p className="text-xs text-slate-500 font-medium">
-              Already have an account?{' '}
-              <Link to="/login" className="font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
-                Sign In
-              </Link>
-            </p>
           </div>
-        </div>
 
-        <div className="text-center text-[11px] text-slate-400 font-medium mt-6">
-          Celestia Grand Hotel Suite v4.2 • Registration Portal
+          {/* Terms checkbox */}
+          <div className="pt-0.5">
+            <label className="flex items-center gap-2 cursor-pointer select-none text-xs text-slate-600">
+              <input
+                type="checkbox"
+                {...register('agreeTerms', { required: 'You must agree to continue' })}
+                className="w-3.5 h-3.5 rounded text-orange-600 focus:ring-orange-500 border-slate-300"
+              />
+              <span>I agree to CraveDash terms & privacy policy</span>
+            </label>
+            {errors.agreeTerms && (
+              <p className="mt-0.5 text-xs text-rose-600 font-medium">{errors.agreeTerms.message}</p>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full mt-2 py-3.5 px-4 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-orange-500 via-orange-600 to-rose-600 hover:from-orange-600 hover:to-rose-700 shadow-lg shadow-orange-500/30 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+          >
+            {isSubmitting ? (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <>
+                <span>Create Account & Log In</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </form>
+
+        {/* Back to Login */}
+        <div className="mt-5 pt-4 border-t border-slate-100 text-center">
+          <p className="text-xs sm:text-sm text-slate-500">
+            Already have an account?{' '}
+            <Link
+              to="/login"
+              className="font-bold text-orange-600 hover:text-orange-700 transition inline-flex items-center gap-1"
+            >
+              Sign In <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </p>
         </div>
 
       </div>
